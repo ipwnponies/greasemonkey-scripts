@@ -2,13 +2,14 @@
 // @name        Mealpal with Yelp Reviews
 // @namespace   ipwnponies
 // @description Add link to yelp reviews, for mealpal
-// @version     1.0
+// @version     1.1
 // @match       https://secure.mealpal.com/lunch
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_openInTab
 // ==/UserScript==
 
+// Load yelp api key from config
 const getApiKey = () => {
   let apiKey = GM_getValue('apiKey');
   if (!apiKey) {
@@ -19,11 +20,13 @@ const getApiKey = () => {
   return apiKey;
 };
 
-async function sleep(ms) {
+// I guess this is how we do sleep in javascript. Because promises are the new hotness.
+const sleep = async (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
+};
 
-function addYelpButton(node) {
+// Add button to hit load yelp page for business and search for mealpal
+const addYelpButton = (node) => {
   // Noop if already has button, as marked by prescence special class
   if (node.nextElementSibling.classList.contains('ipwnponies')) {
     return;
@@ -75,19 +78,10 @@ function addYelpButton(node) {
   };
 
   node.after(link);
-}
+};
 
-async function addYelpButtonsForRestaurants() {
-  let nodes = [];
-  while (nodes.length == 0) {
-    await sleep(1000);
-    nodes = document.querySelectorAll('.description[bo-text="schedule.meal.shortDescription"]');
-  }
-
-  nodes.forEach(addYelpButton);
-}
-
-function addBootstrapCss(){
+// Download bootstrap CSS for the prettiness
+const loadBootstrapCss = () => {
   const link = document.createElement('link');
   document.head.appendChild(link);
 
@@ -96,23 +90,46 @@ function addBootstrapCss(){
   link.type = 'text/css';
   link.integrity = "sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u";
   link.crossorigin = "anonymous";
-}
+};
 
-async function addManuallyReloadButton() {
-  const link = document.createElement('input');
-  link.type='button';
-  link.value='Reload yelp buttons, please';
-  link.classList.add('btn', 'btn-primary', 'ipwnponies');
-  link.onclick = addYelpButtonsForRestaurants;
+// Set up event listener to know when search results change
+const listenOnInfiniteScroll = async () => {
+  let infiniteScroll = false;
 
-  let filterRow;
-  while (!filterRow){
+  // Wait until document is finished loading. I don't know what event to properly wait on
+  while (!infiniteScroll){
     await sleep(1000);
-    filterRow = document.querySelector('.filters-wrapper');
+    infiniteScroll = document.querySelector('#mp-meal-list > div[infinite-scroll]');
   }
-  filterRow.appendChild(link);
-}
 
-addBootstrapCss();
-addManuallyReloadButton();
-addYelpButtonsForRestaurants();
+  const observer = new MutationObserver(infiniteScrollbackCallback);
+  observer.observe(infiniteScroll, { childList: true });
+};
+
+// Attach buttons for initial document load.
+// Because for some reason the events don't fire but the list also isn't loaded. It's like shroedinger's cat except I have to deal with this.
+// Subsequent restaurants will have buttons added automatically via event listener
+const initialSetYelpButtonsForRestaurants = async () => {
+  // Wait arbitrarily long enough for these stupid things to load.
+  // If it takes longer, whatever. The user will have moved on with life, unlike me at this point in the night.
+  await sleep(2000);
+  nodes = document.querySelectorAll('div.description[bo-text="schedule.meal.shortDescription"]');
+  nodes.forEach(addYelpButton);
+};
+
+// Callback to react to new restaurants in search result
+const infiniteScrollbackCallback = (mutationsList, observer) => {
+  for(const mutation of mutationsList) {
+    const newRestaurants = mutation.addedNodes.forEach(restaurantRoot => {
+      // Ignore comments, only interested in list of restaurant elements
+      if (restaurantRoot instanceof Element){
+        const descriptionDiv = restaurantRoot.querySelector('div.fade-box > div[bo-text="schedule.meal.shortDescription"]');
+        addYelpButton(descriptionDiv);
+      }
+    });
+  }
+};
+
+loadBootstrapCss();
+listenOnInfiniteScroll();
+initialSetYelpButtonsForRestaurants();
