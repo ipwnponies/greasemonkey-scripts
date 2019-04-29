@@ -2,7 +2,7 @@
 // @name        Mealpal with Yelp Reviews
 // @namespace   ipwnponies
 // @description Add link to yelp reviews, for mealpal
-// @version     1.1
+// @version     1.1.1
 // @match       https://secure.mealpal.com/lunch
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
@@ -71,7 +71,7 @@ const addYelpButton = (node) => {
         if (gmResponse.status == 200 && response.data.search.business) {
           url = response.data.search.business[0].url;
           // Open yelp page in new tab, query for mealpal
-          GM_openInTab(`${url}&q=mealpal`);
+          GM_openInTab(`${url}&q=mealpal`, true);
         }
       }
     });
