@@ -8,6 +8,15 @@
 // ==/UserScript==
 
 const removeFromPlaylist = (button) => {
+  button.click();
+  const things = document.evaluate(
+    '//span[contains(text(),"Remove from")]',
+    document,
+    null,
+    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    null,
+  );
+  things.snapshotItem(0).click();
 };
 
 // Create menu item by cloning sibling. Change the text and add callback hook
