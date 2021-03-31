@@ -6,7 +6,23 @@
 // @version     0.1
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
-const addRemoveAllButton = (container) => {
+
+const removeFromPlaylist = (button) => {
+};
+
+// Create menu item by cloning sibling. Change the text and add callback hook
+const addClearMenuItem = (container) => {
+  const menuItem = container.children[0].cloneNode();
+  container.appendChild(menuItem);
+
+  const clearPlaylist = () => {
+    const video = document.querySelectorAll('#primary button[aria-label="Action menu"]');
+    video.forEach((action, index) => {
+      setTimeout(() => removeFromPlaylist(action), index * 300);
+    });
+  };
+  menuItem.addEventListener('click', clearPlaylist);
+  menuItem.innerText = 'Clear playlist items';
 };
 
 const mutationCallback = (mutationsList, observer) => {
@@ -18,10 +34,11 @@ const mutationCallback = (mutationsList, observer) => {
 
   if (mutation) {
     observer.disconnect();
-    addRemoveAllButton(mutation.target);
+    addClearMenuItem(mutation.target);
   }
 };
 
+// Add event handler for when playlist option button is invoked
 window.addEventListener('DOMContentLoaded', async () => {
   const frame = document.querySelector('ytd-popup-container');
 
