@@ -1,0 +1,30 @@
+{
+  "name": "greasemonkey-scripts",
+  "version": "1.0.0",
+  "description": "My collection of greasemonkey scripts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipwnponies/greasemonkey-scripts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ipwnponies/greasemonkey-scripts/issues"
+  },
+  "homepage": "https://github.com/ipwnponies/greasemonkey-scripts#readme",
+  "devDependencies": {
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "prettier-eslint": "^12.0.0"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "trailingComma": "all"
+  }
+}
