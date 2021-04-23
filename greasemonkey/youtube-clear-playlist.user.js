@@ -7,8 +7,12 @@
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 
-const removeFromPlaylist = (button) => {
+const removeFromPlaylist = async (button) => {
   button.click();
+
+  // Small delay for click event to resolve
+  await new Promise(resolve => setTimeout(resolve, 30));
+
   const things = document.evaluate(
     '//span[contains(text(),"Remove from")]',
     document,
