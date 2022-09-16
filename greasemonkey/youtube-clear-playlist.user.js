@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://www.youtube.com/playlist
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 
@@ -11,7 +11,7 @@ const removeFromPlaylist = async (button) => {
   button.click();
 
   // Small delay for click event to resolve
-  await new Promise(resolve => setTimeout(resolve, 30));
+  await new Promise((resolve) => setTimeout(resolve, 30));
 
   const things = document.evaluate(
     '//span[contains(text(),"Remove from")]',
@@ -23,38 +23,38 @@ const removeFromPlaylist = async (button) => {
   things.snapshotItem(0).click();
 };
 
-// Create menu item by cloning sibling. Change the text and add callback hook
-const addClearMenuItem = (container) => {
-  const menuItem = container.children[0].cloneNode();
-  container.appendChild(menuItem);
-
-  const clearPlaylist = () => {
-    const video = document.querySelectorAll('#primary button[aria-label="Action menu"]');
-    video.forEach((action, index) => {
-      setTimeout(() => removeFromPlaylist(action), index * 300);
-    });
-  };
-  menuItem.addEventListener('click', clearPlaylist);
-  menuItem.innerText = 'Clear playlist items';
+// Find and remove every playlist items
+const clearPlaylist = () => {
+  const playlistItemsMenus = document.querySelectorAll('#primary button[aria-label="Action menu"]');
+  playlistItemsMenus.forEach((action, index) => {
+    setTimeout(() => removeFromPlaylist(action), index * 300);
+  });
 };
 
+const createClearPlaylistButton = () => {
+  const menuItem = document.createElement('button');
+
+  menuItem.addEventListener('click', clearPlaylist);
+  menuItem.type = 'button';
+  menuItem.innerText = '👀🗑';
+  menuItem.style = 'background-color: red';
+};
+
+// Add button once DOM is populated
 const mutationCallback = (mutationsList, observer) => {
-  // Find mutation that results in populating sibling nodes
-  // This means it's safe for us to append our node
-  const mutation = mutationsList.find(
-    ({ target, addedNodes }) => target.elementMatches('tp-yt-paper-listbox#items') && addedNodes.length,
-  );
+  // Target the playlist side bar
+  const sideBar = 'ytd-playlist-sidebar-renderer';
+  const mutation = mutationsList.find(({ target }) => target.elementMatches(sideBar));
 
   if (mutation) {
     observer.disconnect();
-    addClearMenuItem(mutation.target);
+    mutation.target.querySelector('#edit-button').after(createClearPlaylistButton());
   }
 };
 
-// Add event handler for when playlist option button is invoked
+// Youtube page has zero server-side rendering
+// Observe the entire page, so we can properly wait for target sidebar to be added to DOM
 window.addEventListener('DOMContentLoaded', async () => {
-  const frame = document.querySelector('ytd-popup-container');
-
   const observer = new MutationObserver(mutationCallback);
-  observer.observe(frame, { subtree: true, childList: true });
+  observer.observe(document, { subtree: true, childList: true });
 });
