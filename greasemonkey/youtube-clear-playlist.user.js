@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://www.youtube.com/playlist
 // @grant       none
-// @version     1.1
+// @version     1.2
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 
@@ -38,6 +38,8 @@ const createClearPlaylistButton = () => {
   menuItem.type = 'button';
   menuItem.innerText = '👀🗑';
   menuItem.style = 'background-color: red';
+
+  return menuItem;
 };
 
 // Add button once DOM is populated
@@ -54,7 +56,7 @@ const mutationCallback = (mutationsList, observer) => {
 
 // Youtube page has zero server-side rendering
 // Observe the entire page, so we can properly wait for target sidebar to be added to DOM
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('load', async () => {
   const observer = new MutationObserver(mutationCallback);
   observer.observe(document, { subtree: true, childList: true });
 });
