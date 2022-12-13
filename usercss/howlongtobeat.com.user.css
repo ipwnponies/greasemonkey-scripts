@@ -1,0 +1,15 @@
+/* ==UserStyle==
+@name           howlongtobeat.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Configuring the height of review text area
+
+@var range textbox-height "Height of review text area" [30, 10, 60, 10, "em"]
+==/UserStyle== */
+
+@-moz-document url-prefix("https://howlongtobeat.com/submit/edit/") {
+    textarea[name="review.notes"] {
+        min-height: var(--textbox-height) !important;
+    }
+}
