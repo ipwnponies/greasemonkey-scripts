@@ -1,0 +1,15 @@
+/* ==UserStyle==
+@name           www.disneyplus.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Horizontal scroll bars
+
+==/UserStyle== */
+
+@-moz-document url-prefix("https://www.disneyplus.com/series/") {
+    [data-testid="season-shelf"] .slick-list {
+        overflow-x: auto;
+        padding-bottom: 8em
+    }
+}
