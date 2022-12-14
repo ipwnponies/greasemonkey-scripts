@@ -1,0 +1,18 @@
+/* ==UserStyle==
+@name           gamefaqs.gamespot.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Better font styling
+
+@var range line-height "Line spacing" [1.5, 1.0, 2.0, 0.1]
+@var range font-size "Font size" [1.2, 0.6, 2.0, 0.2, "em"]
+==/UserStyle== */
+
+@-moz-document url-prefix("https://howlongtobeat.com/submit/edit/") {
+    #faqtext pre {
+        font-family: monospace !important;
+        font-size: var(--font-size) !important;
+        line-height: var(--line-height) !important;
+    }
+}
