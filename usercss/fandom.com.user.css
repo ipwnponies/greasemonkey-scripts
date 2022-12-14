@@ -1,0 +1,25 @@
+/* ==UserStyle==
+@name           fandom.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Hiding the footer, relayout main content
+
+@var range max-width "Max width of main content" [60, 40, 80, 10, "em"]
+==/UserStyle== */
+
+@-moz-document domain("fandom.com") {
+    #WikiaRailWrapper,
+    #WikiaFooter {
+        display: none;
+    }
+    #WikiaMainContent {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: auto;
+    }
+
+    body {
+        font-family: sans-serif;
+    }
+}
