@@ -1,0 +1,30 @@
+/* ==UserStyle==
+ * @name           www.youtube.com
+ * @namespace      ipwnponies
+ * @version        1.0.0
+ * @license        MIT
+ * @description    Actually theatre mode
+ *
+ * ==/UserStyle== */
+
+@-moz-document url-prefix("https://www.youtube.com/watch") {
+    /* Video player is sticky to the top */
+    #player-theater-container {
+        position: sticky !important;
+        top: 0;
+        /* Increase the index so that it is always on top  */
+        z-index: 500;
+    }
+
+    /* Make page container overflow-able */
+    ytd-watch-flexy {
+        /*     height: 100vh; */
+        overflow: auto;
+    }
+    ytd-page-manager {
+        /* Header is fixed positioning so we need to reduce height.
+        There is already margin on this element to account for flow.
+         */
+        height: calc(100vh - var(--ytd-masthead-height, var(--ytd-toolbar-height)));
+    }
+}
