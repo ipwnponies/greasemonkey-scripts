@@ -1,0 +1,14 @@
+/* ==UserStyle==
+@name           graphql.buildkite.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Fix css
+==/UserStyle== */
+
+@-moz-document url-prefix("https://graphql.buildkite.com/explorer") {
+	.graphiql-container .topBarWrap {
+		/* Overflow causes breaks position and reflow. Either absolute of relative */
+		overflow-x: unset;
+	}
+}
