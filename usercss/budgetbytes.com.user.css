@@ -1,0 +1,17 @@
+/* ==UserStyle==
+@name           www.budgetbytes.com - 11/20/2022, 11:50:13 PM
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+
+@var range max-width "Max width of main content" [60, 50, 80, 5, "em"]
+==/UserStyle== */
+
+@-moz-document domain("www.budgetbytes.com") {
+	body {
+		--wp--custom--layout--content: var(--max-width)
+	}
+	.content-area {
+		display:unset !important;
+	}
+}
