@@ -1,0 +1,22 @@
+/* ==UserStyle==
+@name           sumologic.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Allow user font preference. Why force Arial on us all
+==/UserStyle== */
+
+@-moz-document url-prefix("https://service.us2.sumologic.com/ui/#/search/") {
+	.CodeMirror,
+	.search-editor-placeholder-text,
+	.code-value,
+	.ui-sumocomplete,
+	 .ui-sumocomplete.ui-menu .ui-menu-item {
+		font-family: monospace !important;
+	}
+	.ux-tab-pane,
+	.bento-nav {
+
+		font-family: sans-serif !important
+	}
+}
