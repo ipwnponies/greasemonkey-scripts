@@ -1,0 +1,22 @@
+/* ==UserStyle==
+@name           www.thespruceeats.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Wider main content
+
+@var range max-width "Max width of main content" [60, 50, 80, 5, "em"]
+==/UserStyle== */
+
+@-moz-document domain("www.thespruceeats.com") {
+	.mntl-article--two-column-right-rail {
+		grid-template-areas:
+			"header"
+			"content"
+			;
+		grid-template-columns: minmax(var(--max-width),	100vw);
+	}
+	.article-content-container {
+		max-width: var(--max-width) !important;
+	}
+}
