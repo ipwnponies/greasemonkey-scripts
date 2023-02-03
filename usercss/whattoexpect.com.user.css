@@ -1,0 +1,13 @@
+/* ==UserStyle==
+@name           www.whattoexpect.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Hide banner ads for related content
+==/UserStyle== */
+
+@-moz-document domain("www.whattoexpect.com") {
+    .recommended-reading-v2 {
+        display: none;
+    }
+}
