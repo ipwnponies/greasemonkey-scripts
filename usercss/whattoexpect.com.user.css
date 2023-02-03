@@ -1,13 +1,14 @@
 /* ==UserStyle==
 @name           www.whattoexpect.com
 @namespace      ipwnponies
-@version        1.0.0
+@version        1.1.0
 @license        MIT
 @description    Hide banner ads for related content
 ==/UserStyle== */
 
 @-moz-document domain("www.whattoexpect.com") {
-    .recommended-reading-v2 {
-        display: none;
-    }
+	.recommended-reading-v2,
+	div[data-connatix-ad=""] {
+		display: none;
+	}
 }
