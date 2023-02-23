@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://www.youtube.com/playlist
 // @grant       none
-// @version     1.2
+// @version     1.3
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 
@@ -45,7 +45,7 @@ const createClearPlaylistButton = () => {
 // Add button once DOM is populated
 const mutationCallback = (mutationsList, observer) => {
   // Target the playlist side bar
-  const sideBar = 'ytd-playlist-sidebar-renderer';
+  const sideBar = 'ytd-playlist-header-renderer';
   const mutation = mutationsList.find(({ target }) => target.elementMatches(sideBar));
 
   if (mutation) {
