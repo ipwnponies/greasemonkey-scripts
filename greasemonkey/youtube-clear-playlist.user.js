@@ -2,8 +2,8 @@
 // @name        Clear Youtube playlists
 // @namespace   ipwnponies
 // @match       https://www.youtube.com/playlist
-// @grant       none
-// @version     1.3
+// @grant       GM.registerMenuCommand
+// @version     1.4
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 
@@ -60,3 +60,5 @@ window.addEventListener('load', async () => {
   const observer = new MutationObserver(mutationCallback);
   observer.observe(document, { subtree: true, childList: true });
 });
+
+GM.registerMenuCommand('Clear Playlist', clearPlaylist);
