@@ -1,0 +1,13 @@
+/* ==UserStyle==
+@name           reddit.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Use your chosen san-serif font.
+==/UserStyle== */
+
+@-moz-document domain('reddit.com') {
+    body {
+        font-family: sans-serif;
+    }
+}
