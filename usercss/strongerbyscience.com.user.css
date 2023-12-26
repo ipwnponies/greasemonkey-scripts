@@ -1,0 +1,26 @@
+/* ==UserStyle==
+@name           Stronger by Science
+@namespace      ipwnponies
+@version        1.0.0
+@description    Fix the reading layout to be wider.
+@author         ipwnponies
+@license        MIT
+
+@var range max-width "Max width of main content" [70, 40, 80, 10, "em"]
+==/UserStyle==
+*/
+
+@-moz-document domain('strongerbyscience.com') {
+	body.gppro-custom .entry-content p {
+		font-family: Ubuntu;
+		font-weight: lighter;
+	}
+	.elementor-container.elementor-column-gap-wide {
+		max-width: var(--max-width) !important;
+	}
+	.entry-content, .entry-header, .breadcrumb {
+		margin-left: auto;
+		margin-right: auto;
+		max-width: 100%;
+	}
+}
