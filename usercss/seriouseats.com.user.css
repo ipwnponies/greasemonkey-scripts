@@ -1,0 +1,28 @@
+/*
+==UserStyle==
+@name           seriouseats.com
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Hide the autoplaying video in sidebar
+
+@var range max-width "Max width of main content" [70, 40, 80, 10, "em"]
+==/UserStyle==
+*/
+
+@-moz-document domain('seriouseats.com') {
+	/* I think this is the auto-playing video in sidebar. */
+	.product-widget {
+		display: none;
+	}
+
+	/* Ensure the main article uses as much space as needed, instead of the ad sidebar. */
+	.entry-container {
+		width: 100%;
+		max-width: var(--max-width);
+	}
+
+	.fexy-modal__outer-wrap {
+		display: none;
+	}
+}
