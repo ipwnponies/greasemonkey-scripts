@@ -1,0 +1,14 @@
+/* ==UserStyle==
+@name           guardiananytime.com
+@namespace      ipwnponies
+@version        1.0.0
+@description    Show their pdf download link
+@author         ipwnponies
+@license        MIT
+==/UserStyle==
+*/
+@-moz-document url-prefix('https://www.guardiananytime.com/claims/') {
+	#memberClaims-search-table .table-responsive {
+		overflow-x: unset;
+	}
+}
