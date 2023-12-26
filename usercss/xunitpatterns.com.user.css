@@ -1,0 +1,60 @@
+/* ==UserStyle==
+@name           xunitpatterns.com
+@namespace      ipwnponies
+@version        1.0.0
+@description    🤷
+@author         ipwnponies
+@license        MIT
+
+@var range max-width "Max width of main content" [55, 35, 75, 5, "em"]
+==/UserStyle==
+*/
+@-moz-document domain('xunitpatterns.com') {
+	#content {
+		max-width: var(--max-width);
+		margin: auto;
+		order: 2;
+	}
+
+	#sidebarleft {
+		order: 1;
+		position: initial;
+		left: auto;
+		top: auto;
+		width: auto;
+		overflow: visible;
+	}
+
+	#topbar > div {
+		position: initial;
+		top: auto;
+		left: auto;
+		width: auto;
+		height: auto;
+	}
+
+	#topbar {
+		overflow: visible;
+	}
+
+	body,
+	p,
+	td {
+		font-size: 1.1em;
+		line-height: normal;
+	}
+
+	.footnote {
+		font-family: initial;
+		font-size: smaller;
+	}
+
+	a {
+		font-size: inherit;
+	}
+
+	body {
+		display: flex;
+		flex-direction: column;
+	}
+}
