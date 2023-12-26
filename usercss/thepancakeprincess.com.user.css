@@ -1,0 +1,16 @@
+/* ==UserStyle==
+@name           thepancakeprincess.com
+@namespace      ipwnponies
+@version        1.0.0
+@description    Widen main content
+@author         ipwnponies
+@license        MIT
+==/UserStyle==
+*/@-moz-document domain('thepancakeprincess.com') {
+	@media (min-width: 960px) {
+		.content-sidebar .content {
+			max-width: initial;
+			width: 100%
+		}
+	}
+}
