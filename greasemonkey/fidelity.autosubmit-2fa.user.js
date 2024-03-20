@@ -3,19 +3,19 @@
 // @namespace   ipwnponies
 // @match       https://digital.fidelity.com/prgw/digital/login/full-page*
 // @grant       none
-// @version     2.0
+// @version     2.1
 // @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when login or 2fa code is pasted or inserted by password manager
 // ==/UserScript==
 
 // Login
-const getLoginButton = () => document.querySelector('#dom-login-button');
 VM.observe(document.querySelector('body'), () => {
-  const totpInput = getLoginButton();
+  const totpInput = document.querySelector('#dom-pswd-input');
   if (totpInput) {
-    totpInput.addEventListener('change', () => {
+    totpInput.addEventListener('paste', () => {
       setTimeout(() => {
+        const getLoginButton = () => document.querySelector('#dom-login-button');
         getLoginButton().click();
       });
     });
@@ -26,14 +26,13 @@ VM.observe(document.querySelector('body'), () => {
   return undefined;
 });
 
-// 2FA
-const get2FAButton = () => document.querySelector('#dom-svip-code-submit-button');
 VM.observe(document.querySelector('body'), () => {
-  const totpInput = get2FAButton();
+  const totpInput = document.querySelector('#dom-svip-security-code-input');
   if (totpInput) {
     const clickyButton = () => {
       setTimeout(() => {
-        get2FAButton().click();
+        const submitButton = document.querySelector('#dom-svip-code-submit-button');
+        submitButton.click();
       }, 1);
     };
     totpInput.addEventListener('paste', clickyButton);
