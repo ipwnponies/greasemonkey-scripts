@@ -12,20 +12,21 @@
 		--z-index: calc(var(--ytd-z-index-channel-name) + 1);
 	}
 
+    /* There is an upcoming redesign that removes #full-bleed-container, probably replaced by #player-full-bleed-container
+    */
+
 	/* Video player is sticky to the top */
+	#player-full-bleed-container,
 	#full-bleed-container,
+	#player,
 	#panels {
 		position: sticky !important;
 		top: 0;
 		z-index: var(--z-index);
 	}
 
-	#panels {
-		/* Remove transparent background */
-		background-color: var(--light-theme-background-color);
-	}
-
 	#player,
+	#player-full-bleed-container,
 	#full-bleed-container {
 		/* Ensure player is above every side panels */
 		z-index: calc(var(--z-index) + 1);
