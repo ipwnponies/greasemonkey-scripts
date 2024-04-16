@@ -7,30 +7,30 @@
  *
  * ==/UserStyle== */
 @-moz-document domain("www.youtube.com") {
-	:root {
-		/* This is highest index item on the page */
-		--z-index: calc(var(--ytd-z-index-channel-name) + 1);
-	}
+    :root {
+        /* This is highest index item on the page */
+        --z-index: calc(var(--ytd-z-index-channel-name) + 1);
+    }
 
     /* There is an upcoming redesign that removes #full-bleed-container, probably replaced by #player-full-bleed-container
     */
 
-	/* Video player is sticky to the top */
-	#player-full-bleed-container,
-	#full-bleed-container,
-	#player,
-	#panels {
-		position: sticky !important;
-		top: 0;
-		z-index: var(--z-index);
-	}
+    /* Video player is sticky to the top */
+    #player-full-bleed-container,
+    #full-bleed-container,
+    #player,
+    #panels {
+        position: sticky !important;
+        top: 0;
+        z-index: var(--z-index);
+    }
 
-	#player,
-	#player-full-bleed-container,
-	#full-bleed-container {
-		/* Ensure player is above every side panels */
-		z-index: calc(var(--z-index) + 1);
-	}
+    #player,
+    #player-full-bleed-container,
+    #full-bleed-container {
+        /* Ensure player is above every side panels */
+        z-index: calc(var(--z-index) + 1);
+    }
 
     /* For non-theatre mode, we will apply the floating player only when using a large window */
     @media (orientation: portrait) and (height > 40em) and (height > 800px){
