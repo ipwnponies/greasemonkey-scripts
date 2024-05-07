@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://banking.firsttechfed.com/Authentication
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when 2fa code is pasted
@@ -15,11 +15,11 @@ const totpInputFinder = document.querySelector.bind(document, 'form.isotope-step
 VM.observe(app, () => {
   const totpInput = totpInputFinder();
   if (totpInput) {
-    totpInput.addEventListener('paste', () => {
-      setTimeout(() => {
-        document.querySelector('#btn_SubmitTOTP').click();
-      }, 1);
-    });
+    const action = () => {
+      setTimeout(() => document.querySelector('#btn_SubmitTOTP').click(), 1);
+    };
+    totpInput.addEventListener('paste', action);
+    totpInput.addEventListener('change', action);
 
     return true;
   }
