@@ -1,0 +1,13 @@
+/* ==UserStyle==
+@name           www.tadpoles.com/m/
+@namespace      ipwnponies
+@version        1.0.0
+@description    Remove right-click blocking
+@license        MIT
+==/UserStyle== */
+
+@-moz-document domain("www.tadpoles.com") {
+    div[oncontextmenu="return false;"] {
+        display: none;
+    }
+}
