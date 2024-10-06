@@ -11,7 +11,8 @@
 
 const { register } = VM.shortcut;
 
-const comments = document.querySelector('#social-footer a');
+// There are several comment bubbles, any of them work
+const comments = document.querySelector('a.view-comments');
 
 register('ctrl-k', () => {
   comments.click();
