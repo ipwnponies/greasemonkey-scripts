@@ -4,7 +4,7 @@
 // @match       https://www.youtube.com/playlist
 // @grant       GM.registerMenuCommand
 // @grant       GM.getValue
-// @version     1.5.1
+// @version     1.5.2
 // @author      ipwnponies
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
@@ -19,10 +19,17 @@ const removeFromPlaylist = async (button) => {
     '//span[contains(text(),"Remove from")]',
     document,
     null,
-    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
     null,
   );
-  things.snapshotItem(0).click();
+
+  // Ignore "more actions" results that don't have the "remove from list" option
+  things.singleNodeValue?.click();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+
+  // Close the action menu
+  button.click();
+  await new Promise((resolve) => setTimeout(resolve, 30));
 };
 
 // Find and remove every playlist items
