@@ -37,34 +37,5 @@ const clearPlaylist = async () => {
   });
 };
 
-const createClearPlaylistButton = () => {
-  const menuItem = document.createElement('button');
-
-  menuItem.addEventListener('click', clearPlaylist);
-  menuItem.type = 'button';
-  menuItem.innerText = '👀🗑';
-  menuItem.style = 'background-color: red';
-
-  return menuItem;
-};
-
-// Add button once DOM is populated
-const mutationCallback = (mutationsList, observer) => {
-  // Target the playlist side bar
-  const sideBar = 'ytd-playlist-header-renderer';
-  const mutation = mutationsList.find(({ target }) => target.elementMatches(sideBar));
-
-  if (mutation) {
-    observer.disconnect();
-    mutation.target.querySelector('#edit-button').after(createClearPlaylistButton());
-  }
-};
-
-// Youtube page has zero server-side rendering
-// Observe the entire page, so we can properly wait for target sidebar to be added to DOM
-window.addEventListener('load', async () => {
-  const observer = new MutationObserver(mutationCallback);
-  observer.observe(document, { subtree: true, childList: true });
-});
 
 GM.registerMenuCommand('Clear Playlist', clearPlaylist);
