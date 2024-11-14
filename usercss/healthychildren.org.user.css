@@ -1,0 +1,13 @@
+/* ==UserStyle==
+@name           www.healthychildren.org
+@namespace      ipwnponies
+@version        1.0.0
+@license        MIT
+@description    Unbreak scrolling
+==/UserStyle== */
+
+@-moz-document domain("www.healthychildren.org") {
+    #s4-workspace {
+        height: 100vh;
+    }
+}
