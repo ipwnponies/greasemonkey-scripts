@@ -9,36 +9,31 @@
 // @description Clicky button when login or 2fa code is pasted or inserted by password manager
 // ==/UserScript==
 
+const clickButton = (selector) => () => {
+  setTimeout(() => {
+    const button = document.querySelector(selector);
+    button?.click();
+  });
+};
+
 // Login
 VM.observe(document.querySelector('body'), () => {
   const totpInput = document.querySelector('#dom-pswd-input');
   if (totpInput) {
-    totpInput.addEventListener('paste', () => {
-      setTimeout(() => {
-        const getLoginButton = () => document.querySelector('#dom-login-button');
-        getLoginButton().click();
-      });
-    });
-
+    totpInput.addEventListener('paste', clickButton('#dom-login-button'));
     return true;
   }
 
   return undefined;
 });
 
+// 2FA
 VM.observe(document.querySelector('body'), () => {
   const totpInput = document.querySelector('#dom-svip-security-code-input');
   if (totpInput) {
-    const clickyButton = () => {
-      setTimeout(() => {
-        const submitButton = document.querySelector('#dom-svip-code-submit-button');
-        submitButton.click();
-      }, 1);
-    };
-    totpInput.addEventListener('paste', clickyButton);
-    // password manager integration is a field change event
-    totpInput.addEventListener('change', clickyButton);
-
+    const callback = clickButton('#dom-svip-code-submit-button');
+    totpInput.addEventListener('paste', callback);
+    totpInput.addEventListener('change', callback);
     return true;
   }
 
