@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://digital.fidelity.com/prgw/digital/login/full-page*
 // @grant       none
-// @version     2.1
+// @version     2.2
 // @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when login or 2fa code is pasted or inserted by password manager
@@ -20,7 +20,9 @@ const clickButton = (selector) => () => {
 VM.observe(document.querySelector('body'), () => {
   const totpInput = document.querySelector('#dom-pswd-input');
   if (totpInput) {
-    totpInput.addEventListener('paste', clickButton('#dom-login-button'));
+    for (const event of ['paste', 'change']) {
+      totpInput.addEventListener(event, clickButton('#dom-login-button'));
+    }
     return true;
   }
 
@@ -31,9 +33,9 @@ VM.observe(document.querySelector('body'), () => {
 VM.observe(document.querySelector('body'), () => {
   const totpInput = document.querySelector('#dom-svip-security-code-input');
   if (totpInput) {
-    const callback = clickButton('#dom-svip-code-submit-button');
-    totpInput.addEventListener('paste', callback);
-    totpInput.addEventListener('change', callback);
+    for (const event of ['paste', 'change']) {
+      totpInput.addEventListener(event, clickButton('#dom-svip-code-submit-button'));
+    }
     return true;
   }
 
