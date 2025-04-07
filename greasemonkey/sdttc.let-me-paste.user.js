@@ -3,8 +3,8 @@
 // @namespace   ipwnponies
 // @match       https://wps.sdttc.com/webpayments/CoSDTreasurer2/payment
 // @grant       none
-// @version     1.0
-// @author      -
+// @version     1.0.1
+// @author      ipwnponies
 // @description Why the ass would you not allow paste of bank account info. Unfuck their shit.
 // ==/UserScript==
 
