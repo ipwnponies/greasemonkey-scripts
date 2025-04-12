@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Keybinding for options -  photos.google.com
 // @namespace   ipwnponies
-// @match       https://photos.google.com/share/
-// @match       https://photos.google.com/album/
+// @match       https://photos.google.com/share/*
+// @match       https://photos.google.com/album/*
 // @grant       none
-// @version     1.0
+// @version     1.0.1
 // @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Keybinding to access the options menu in Google Photos
