@@ -4,7 +4,7 @@
 // @match       https://photos.google.com/share/*
 // @match       https://photos.google.com/album/*
 // @grant       none
-// @version     1.0.1
+// @version     1.0.2
 // @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Keybinding to access the options menu in Google Photos
@@ -13,8 +13,10 @@
 const { register } = VM.shortcut;
 
 register('period', () => {
-  const elements = document.querySelectorAll('div[aria-label="More options"]');
-  const element = Array.from(elements).find((i) => i.checkVisibility());
+  const elements = document.querySelectorAll('[aria-label="More options"]');
+  const element = Array.from(elements)
+    .reverse()
+    .find((i) => i.checkVisibility());
 
   element.click();
 });
