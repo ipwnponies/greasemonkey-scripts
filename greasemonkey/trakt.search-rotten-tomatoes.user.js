@@ -3,16 +3,16 @@
 // @namespace   ipwnponies
 // @match       https://trakt.tv/movies/*
 // @grant       GM_registerMenuCommand
-// @version     1.0
+// @version     1.1
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @author      ipwnponies
 // @description Add a link to search movie on rotten tomatoes
 // ==/UserScript==
 
 const getMovieName = () => {
-  const titleNode = Array.from(document.querySelector('.container.summary h1').childNodes).find(
-    (i) => i.nodeName == '#text',
-  );
+  const headerNode = document.querySelector('.container.summary h1');
+  const anchorNode = headerNode.querySelector('a');
+  const titleNode = Array.from((anchorNode ?? headerNode).childNodes).find((i) => i.nodeType === Node.TEXT_NODE);
   return titleNode.nodeValue;
 };
 
