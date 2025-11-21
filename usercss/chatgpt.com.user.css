@@ -1,0 +1,12 @@
+/* ==UserStyle==
+@name           chatgpt.com/c/
+@namespace      ipwnponies
+@version        1.0.0
+@description    Fix canvas tooltip
+==/UserStyle== */
+
+@-moz-document url-prefix("https://chatgpt.com/c/") {
+	.pointer-events-auto {
+		z-index: 10;
+	}
+}
