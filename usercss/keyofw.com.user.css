@@ -1,0 +1,15 @@
+/* ==UserStyle==
+@name           www.keyofw.com/baba-is-blog/
+@namespace      ipwnponies
+@version        1.0.0
+@description    Fix canvas tooltip
+==/UserStyle== */
+
+@-moz-document url-prefix("https://www.keyofw.com/baba-is-blog/") {
+
+	/* Reveal spoiler on hover/focus by matching normal text color */
+	.sqs-block-markdown font[color="000000"]:hover {
+		color: inherit !important;
+	}
+
+}
