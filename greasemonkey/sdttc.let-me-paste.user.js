@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name        Let me paste - sdttc.com
 // @namespace   ipwnponies
-// @match       https://wps.sdttc.com/webpayments/CoSDTreasurer2/payment
+// @match       https://wps.sdttc.com/webpayments/CoSDTreasurer2/*
 // @grant       none
-// @version     1.0.1
+// @version     1.0.2
 // @author      ipwnponies
 // @description Why the ass would you not allow paste of bank account info. Unfuck their shit.
 // ==/UserScript==
