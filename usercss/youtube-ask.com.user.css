@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name           Youtube ask
 @namespace      ipwnponies
-@version        1.0.0
+@version        1.0.1
 @description    Make the ask panel a full-screen modal
 ==/UserStyle== */
 
@@ -10,11 +10,13 @@
     /* This is parent container, fix it so that it floats and isn't in a corner */
     #panels {
         position: fixed !important;
-        z-index: 1000 !important;
-
         width: 80vw;
         left: 10vw;
         top: 10vh;
+    }
+
+    #secondary {
+        z-index: 1000
     }
 
     /* This is the ask panel, make it full height */
