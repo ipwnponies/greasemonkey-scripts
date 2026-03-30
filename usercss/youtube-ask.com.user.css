@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name           Youtube ask
 @namespace      ipwnponies
-@version        1.0.1
+@version        1.1.0
 @description    Make the ask panel a full-screen modal
 ==/UserStyle== */
 
@@ -13,6 +13,14 @@
         width: 80vw;
         left: 10vw;
         top: 10vh;
+        opacity: 80%;
+        transition-duration: 1s;
+    }
+
+    #panels:hover {
+        opacity: 100%;
+        transition-duration: 0.5s;
+
     }
 
     #secondary {
