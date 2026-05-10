@@ -219,7 +219,7 @@ const drainPlaylist = async ({
   retryDelay = config?.retryDelay ?? 800,
   maxRetries = config?.maxRetries ?? 2,
   continueOnFailure = config?.continueOnFailure ?? false,
-  delay = config?.timeout ?? 0,
+  timeout = config?.timeout ?? 0,
 }) => {
   const effectiveConfig = {
     retryDelay,
@@ -244,12 +244,12 @@ const drainPlaylist = async ({
         wait,
       });
 
-      await wait(delay);
+      await wait(timeout);
     } else {
       // This idle phase gives YouTube a chance to mount more playlist rows in virtualized views.
       idlePasses += 1;
       await onIdle();
-      await wait(delay);
+      await wait(timeout);
     }
 
     button = findButton();
