@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name        Redirect youtube to nocoookie - youtube.com
+// @name        Redirect youtube to nocookie - youtube.com
 // @namespace   ipwnponies
 // @match       https://www.youtube.com/embed/watch?v=*
 // @match       https://www.youtube.com/embed/*
 // @match       https://www.youtube.com/watch?v=*
 // @grant       none
 // @version     1.1.1
-// @description Redirect from youtube to nocookie embed Add referrer to youtube embed
+// @description Redirect youtube to youtube-nocookie embed
 // ==/UserScript==
 
 function resolveVideoId(search, pathname) {

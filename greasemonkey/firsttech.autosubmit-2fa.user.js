@@ -4,7 +4,7 @@
 // @match       https://banking.firsttechfed.com/Authentication
 // @grant       none
 // @version     1.1
-// @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
+// @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when 2fa code is pasted
 // ==/UserScript==
 

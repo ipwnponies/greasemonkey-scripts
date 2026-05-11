@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Fidelity One-time Code Autocomplete Disable
 // @namespace   ipwnponies
-// @description Disable browser autocomplete for html input
 // @version     1.0.1
 // @match       https://login.fidelity.com/ftgw/Fas/Fidelity/RtlCust/Login/Response
 // @grant       none
+// @description Disable browser autocomplete for html input
 // ==/UserScript==
 
 async function sleep(ms) {

@@ -4,7 +4,7 @@
 // @match       https://mail.google.com/mail/u/*
 // @grant       none
 // @version     1.1.1
-// @require https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
+// @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Open all images in a new tab
 // ==/UserScript==
 
