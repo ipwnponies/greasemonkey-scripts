@@ -7,8 +7,7 @@
 @license        MIT
 
 @var range max-width "Max width of main content" [70, 40, 80, 10, "em"]
-==/UserStyle==
-*/
+==/UserStyle== */
 
 @-moz-document domain('strongerbyscience.com') {
 	body.gppro-custom .entry-content p {

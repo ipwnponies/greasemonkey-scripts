@@ -1,5 +1,4 @@
-/*
-==UserStyle==
+/* ==UserStyle==
 @name           seriouseats.com
 @namespace      ipwnponies
 @version        1.0.0
@@ -7,8 +6,7 @@
 @description    Hide the autoplaying video in sidebar
 
 @var range max-width "Max width of main content" [70, 40, 80, 10, "em"]
-==/UserStyle==
-*/
+==/UserStyle== */
 
 @-moz-document domain('seriouseats.com') {
 	/* I think this is the auto-playing video in sidebar. */

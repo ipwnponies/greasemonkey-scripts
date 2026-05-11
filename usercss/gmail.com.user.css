@@ -1,9 +1,9 @@
 /* ==UserStyle==
-@name           mail.google.com - 2023-10-19, 7:24:56 p.m.
+@name           mail.google.com
 @namespace      ipwnponies
 @version        1.0.0
 @license        MIT
-@description    Hide gmail header when printing
+@description    Hide header when printing
 ==/UserStyle== */
 @-moz-document url-prefix("https://mail.google.com/mail/u/") {
 	.bodycontainer > table,

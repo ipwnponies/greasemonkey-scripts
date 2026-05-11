@@ -1,8 +1,9 @@
 /* ==UserStyle==
-@name           www.budgetbytes.com - 11/20/2022, 11:50:13 PM
+@name           www.budgetbytes.com
 @namespace      ipwnponies
 @version        1.0.0
 @license        MIT
+@description    Constrain max content width
 
 @var range max-width "Max width of main content" [60, 50, 80, 5, "em"]
 ==/UserStyle== */

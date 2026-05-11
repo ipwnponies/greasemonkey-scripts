@@ -7,8 +7,7 @@
 @license        MIT
 
 @var range max-width "Max width of main content" [55, 35, 75, 5, "em"]
-==/UserStyle==
-*/
+==/UserStyle== */
 @-moz-document domain('xunitpatterns.com') {
 	#content {
 		max-width: var(--max-width);
