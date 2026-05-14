@@ -1,16 +1,17 @@
 /* ==UserStyle==
 @name           Youtube ask
 @namespace      ipwnponies
-@version        1.1.1
+@version        1.1.2
 @description    Make the ask panel a full-screen modal
 ==/UserStyle== */
 
 @-moz-document url-prefix("https://www.youtube.com/watch?v=") {
 
-    /* #primary is video, #secondary are panels. increase z-index priority for stacking context */
+    /* Raise #secondary above #primary (video) by overriding YouTube's z-index variable */
     #secondary {
-        z-index: calc(var(--z-index) + 100);
-        /* This is parent container of ask content, fix it so that it floats and isn't in a corner */
+        z-index: calc(var(--z-index) + 1);
+
+        /* Float #panels as a fixed overlay instead of a sidebar */
         #panels {
             position: fixed !important;
             width: 80vw;
@@ -26,10 +27,9 @@
         }
     }
 
-    /* This is the ask panel, make it full height */
+    /* Allow ask panel to fill the overlay height */
     ytd-engagement-panel-section-list-renderer {
         height: 80vh;
-        /* Override their cap */
         max-height: unset !important;
     }
 }
