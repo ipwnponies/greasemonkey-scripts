@@ -7,21 +7,23 @@
 
 @-moz-document url-prefix("https://www.youtube.com/watch?v=") {
 
-    /* This is parent container, fix it so that it floats and isn't in a corner */
-    #panels {
-        position: fixed !important;
-        width: 80vw;
-        left: 10vw;
-        top: 10vh;
-        opacity: 80%;
-        transition-duration: 1s;
-        z-index: 100;
-    }
+    /* #primary is video, #secondary are panels. increase z-index priority for stacking context */
+    #secondary {
+        z-index: calc(var(--z-index) + 100);
+        /* This is parent container of ask content, fix it so that it floats and isn't in a corner */
+        #panels {
+            position: fixed !important;
+            width: 80vw;
+            left: 10vw;
+            top: 10vh;
+            opacity: 80%;
+            transition-duration: 1s;
+        }
 
-    #panels:hover {
-        opacity: 100%;
-        transition-duration: 0.5s;
-
+        #panels:hover {
+            opacity: 100%;
+            transition-duration: 0.5s;
+        }
     }
 
     /* This is the ask panel, make it full height */
