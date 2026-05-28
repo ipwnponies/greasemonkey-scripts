@@ -37,13 +37,38 @@ Multiple `@match` lines are allowed. Use the narrowest pattern that covers the t
 
 ### `@grant` and GM APIs
 
-Scripts that need cross-origin requests or persistent storage must declare the specific grant:
+Two API styles exist:
+
+- **`GM.`** (modern) — Promise-based. Declare as `@grant GM.methodName`.
+- **`GM_`** (legacy) — Synchronous/callback-based. Declare as `@grant GM_methodName`.
+
+The grant string must match the API style used — they are separate APIs, not aliases.
+
+For fire-and-forget operations where you don't need the result (opening a tab, showing a notification, writing to clipboard, setting or deleting a stored value), the returned promise can be ignored:
 
 ```js
-// @grant       GM_xmlhttpRequest
-// @grant       GM.getValue
-// @grant       GM.registerMenuCommand
-// @grant       GM_openInTab
+// No await needed — fire and forget
+GM.setValue('key', value);
+GM.deleteValue('key');
+GM_openInTab('https://example.com', true);
+GM.notification({ text: 'Done!' });
+GM.setClipboard('text to copy');
+```
+
+When you need the result, `await` it:
+
+```js
+// @grant GM.getValue
+
+const apiKey = await GM.getValue('apiKey');
+```
+
+Or use the legacy synchronous API to avoid async:
+
+```js
+// @grant GM_getValue
+
+const apiKey = GM_getValue('apiKey');
 ```
 
 Use `@grant none` when you only need to touch the page DOM.
@@ -77,11 +102,11 @@ For pages that load content asynchronously, poll until the target element appear
 
 ```js
 async function main() {
-    while (!document.querySelector('.target-element')) {
-        await sleep(200);
-    }
-    // element is now present
-    doWork();
+  while (!document.querySelector('.target-element')) {
+    await sleep(200);
+  }
+  // element is now present
+  doWork();
 }
 
 main();
@@ -95,15 +120,15 @@ For time-bounded waiting with a clear error on timeout:
 
 ```js
 const waitFor = async (callback, timeout = 5000, interval = 50) => {
-    const deadline = Date.now() + timeout;
+  const deadline = Date.now() + timeout;
 
-    while (Date.now() < deadline) {
-        const result = callback();
-        if (result) return result;
-        await sleep(interval);
-    }
+  while (Date.now() < deadline) {
+    const result = callback();
+    if (result) return result;
+    await sleep(interval);
+  }
 
-    throw new Error('Timed out');
+  throw new Error('Timed out');
 };
 
 // Usage
@@ -121,12 +146,12 @@ The `@violentmonkey/dom` library provides `VM.observe`, which is more efficient 
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 
 VM.observe(document.querySelector('body'), () => {
-    const input = document.querySelector('#target-input');
-    if (input) {
-        input.addEventListener('paste', handlePaste);
-        return true; // returning true stops the observer
-    }
-    // return undefined (or nothing) to keep watching
+  const input = document.querySelector('#target-input');
+  if (input) {
+    input.addEventListener('paste', handlePaste);
+    return true; // returning true stops the observer
+  }
+  // return undefined (or nothing) to keep watching
 });
 ```
 
@@ -138,13 +163,13 @@ For more control, use a raw `MutationObserver`:
 
 ```js
 const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-            if (node instanceof Element) {
-                processNode(node);
-            }
-        }
+  for (const mutation of mutations) {
+    for (const node of mutation.addedNodes) {
+      if (node instanceof Element) {
+        processNode(node);
+      }
     }
+  }
 });
 
 observer.observe(document.querySelector('body'), { subtree: true, childList: true });
@@ -162,15 +187,17 @@ In single-page applications, the page doesn't reload on navigation. Use `@match`
 const isTargetPage = () => location.pathname.startsWith('/target/');
 
 VM.observe(document.body, () => {
-    if (!isTargetPage()) return;
+  if (!isTargetPage()) return;
 
-    const el = document.querySelector('.target');
-    if (el) {
-        doWork(el);
-        return true;
-    }
+  const el = document.querySelector('.target');
+  if (el) {
+    doWork(el);
+    return true;
+  }
 });
 ```
+
+**Important for SPAs:** `return true` stops the observer permanently. In a normal page load, the script runs fresh on each navigation, so stopping after success is fine. In a SPA, the script only loads once for the whole session — subsequent route changes won't reload it. If you need to re-run setup on each navigation to a target page (rather than just once), do not `return true`; instead keep observing and re-check the path on each mutation.
 
 For redirects and URL manipulation, use `location.assign()` (adds history entry) or `location.replace()` (no history entry):
 
@@ -192,8 +219,8 @@ When you need to click a button after a paste event but the button state hasn't 
 
 ```js
 const action = async () => {
-    await new Promise((r) => setTimeout(r, 100));
-    document.querySelector('button[type=submit]').click();
+  await new Promise((r) => setTimeout(r, 100));
+  document.querySelector('button[type=submit]').click();
 };
 
 input.addEventListener('paste', action);
@@ -205,9 +232,9 @@ When a button becomes enabled in response to an input event, `requestAnimationFr
 
 ```js
 input.addEventListener('paste', () => {
-    requestAnimationFrame(() => {
-        form.querySelector('button.btn-primary').click();
-    });
+  requestAnimationFrame(() => {
+    form.querySelector('button.btn-primary').click();
+  });
 });
 ```
 
@@ -215,13 +242,13 @@ Prefer `requestAnimationFrame` over `setTimeout(fn, 0)` when the goal is to wait
 
 ### `setTimeout` with No Delay
 
-A bare `setTimeout(() => ...) ` (no ms argument) defers execution to after the current call stack clears, which is sometimes enough for event-driven UI updates:
+A bare `setTimeout(() => ...)` (no ms argument) defers execution to after the current call stack clears, which is sometimes enough for event-driven UI updates:
 
 ```js
 const clickButton = (selector) => () => {
-    setTimeout(() => {
-        document.querySelector(selector)?.click();
-    });
+  setTimeout(() => {
+    document.querySelector(selector)?.click();
+  });
 };
 ```
 
@@ -233,13 +260,13 @@ Sites that call `e.preventDefault()` on paste events can be bypassed by register
 
 ```js
 field.addEventListener(
-    'keydown',
-    (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-            e.stopImmediatePropagation(); // prevents all other keydown handlers
-        }
-    },
-    { capture: true }, // runs before bubble-phase listeners
+  'keydown',
+  (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      e.stopImmediatePropagation(); // prevents all other keydown handlers
+    }
+  },
+  { capture: true }, // runs before bubble-phase listeners
 );
 ```
 
@@ -259,17 +286,17 @@ Common pattern for 2FA and login forms — click the submit button automatically
 
 ```js
 VM.observe(document.body, () => {
-    const input = document.querySelector('#otp-input');
-    if (input) {
-        for (const event of ['paste', 'change']) {
-            input.addEventListener(event, () => {
-                requestAnimationFrame(() => {
-                    document.querySelector('#submit-button').click();
-                });
-            });
-        }
-        return true;
+  const input = document.querySelector('#otp-input');
+  if (input) {
+    for (const event of ['paste', 'change']) {
+      input.addEventListener(event, () => {
+        requestAnimationFrame(() => {
+          document.querySelector('#submit-button').click();
+        });
+      });
     }
+    return true;
+  }
 });
 ```
 
@@ -285,7 +312,7 @@ Use `@violentmonkey/shortcut` for keyboard shortcut registration:
 const { register } = VM.shortcut;
 
 register('ctrl-k', () => {
-    // action
+  // action
 });
 ```
 
@@ -299,29 +326,39 @@ Scripts needing requests to external domains must use `GM_xmlhttpRequest` (not `
 // @grant GM_xmlhttpRequest
 
 GM_xmlhttpRequest({
-    method: 'POST',
-    url: 'https://api.example.com/graphql',
-    data: queryString,
-    headers: { 'Content-Type': 'application/graphql', Authorization: `Bearer ${apiKey}` },
-    onload: (response) => {
-        const data = JSON.parse(response.response);
-        // use data
-    },
+  method: 'POST',
+  url: 'https://api.example.com/graphql',
+  data: queryString,
+  headers: { 'Content-Type': 'application/graphql', Authorization: `Bearer ${apiKey}` },
+  onload: (response) => {
+    const data = JSON.parse(response.response);
+    // use data
+  },
 });
 ```
 
 ## Persistent Storage
 
-Use `GM.getValue` / `GM.setValue` for user configuration that survives page reloads:
+Use `GM.getValue` / `GM.setValue` for user configuration that survives page reloads.
+
+`GM.getValue` returns a Promise — `await` it when you need the value before continuing:
 
 ```js
 // @grant GM.getValue
 
-const apiKey = GM_getValue('apiKey');
+const apiKey = await GM.getValue('apiKey');
 if (!apiKey) {
-    alert('Set "apiKey" in script storage before using this script.');
-    throw new Error('apiKey not set');
+  alert('Set "apiKey" in script storage before using this script.');
+  throw new Error('apiKey not set');
 }
+```
+
+`GM.setValue` and `GM.deleteValue` are fire-and-forget — no need to `await`:
+
+```js
+// @grant GM.setValue
+
+GM.setValue('lastRun', Date.now());
 ```
 
 Users set values through the extension's storage editor.
@@ -334,11 +371,11 @@ When CSS selectors can't target an element by text content, use XPath:
 
 ```js
 const findByText = (text) => document.evaluate(
-    `//span[contains(text(),"${text}")]`,
-    document,
-    null,
-    XPathResult.FIRST_ORDERED_NODE_TYPE,
-    null,
+  `//span[contains(text(),"${text}")]`,
+  document,
+  null,
+  XPathResult.FIRST_ORDERED_NODE_TYPE,
+  null,
 ).singleNodeValue;
 
 const removeOption = findByText('Remove from');
@@ -351,11 +388,11 @@ Prevent a script from adding duplicate UI elements when it re-runs (e.g. after a
 
 ```js
 const addButton = (node) => {
-    if (node.nextElementSibling?.classList.contains('my-script-marker')) return;
+  if (node.nextElementSibling?.classList.contains('my-script-marker')) return;
 
-    const btn = document.createElement('button');
-    btn.classList.add('my-script-marker');
-    node.after(btn);
+  const btn = document.createElement('button');
+  btn.classList.add('my-script-marker');
+  node.after(btn);
 };
 ```
 
@@ -383,10 +420,10 @@ Angular apps (and some others) wrap `addEventListener` using zone.js. To bypass 
 
 ```js
 input.addEventListener.__zone_symbol__OriginalDelegate.call(
-    input,
-    'paste',
-    handler,
-    false,
+  input,
+  'paste',
+  handler,
+  false,
 );
 ```
 
