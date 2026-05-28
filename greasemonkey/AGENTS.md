@@ -13,7 +13,6 @@ Every script opens with a metadata block inside a `// ==UserScript== ... // ==/U
 // @match       https://www.example.com/path/*
 // @grant       none
 // @version     1.0.0
-// @author      ipwnponies
 // @description Longer explanation
 // ==/UserScript==
 
@@ -25,12 +24,14 @@ Every script opens with a metadata block inside a `// ==UserScript== ... // ==/U
 | Key | Purpose |
 |-----|---------|
 | `@name` | Display name in extension UI |
-| `@namespace` | Author identifier |
+| `@namespace` | Author identifier — forms the unique script identity together with `@name` |
 | `@match` | URL pattern(s) that activate this script |
 | `@grant` | Permissions for GM APIs (`none` if not needed) |
 | `@version` | Semver string |
 | `@require` | External library loaded before the script runs |
 | `@description` | Human-readable summary |
+
+The extension uses `@namespace` + `@name` as the unique script identity. When installing an update, it matches on this pair to replace the existing script rather than install a duplicate. Do not use `@author` — it is purely informational with no technical role, and `@namespace` already encodes authorship.
 
 Multiple `@match` lines are allowed. Use the narrowest pattern that covers the target pages.
 

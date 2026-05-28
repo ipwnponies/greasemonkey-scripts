@@ -4,7 +4,6 @@
 // @match       https://www.cascholarshare529.com/cadtpl/auth/ll.cs
 // @grant       none
 // @version     1.0
-// @author      ipwnponies
 // @description Clicky button when username is pasted or inserted by password manager. Only needed for username input
 // page, the password input page is auto submit-able
 // ==/UserScript==

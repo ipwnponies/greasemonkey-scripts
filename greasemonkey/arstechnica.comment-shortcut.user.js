@@ -4,7 +4,6 @@
 // @match       https://arstechnica.com/*
 // @grant       none
 // @version     2.0
-// @author      ipwnponies
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Add shortcut to go to comment section
 // ==/UserScript==

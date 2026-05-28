@@ -5,7 +5,6 @@
 // @grant       GM_registerMenuCommand
 // @version     1.1
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
-// @author      ipwnponies
 // @description Add a link to search movie on rotten tomatoes
 // ==/UserScript==
 

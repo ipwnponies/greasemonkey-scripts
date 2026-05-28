@@ -4,7 +4,6 @@
 // @match       https://leetcode.com/tag/*
 // @grant       none
 // @version     1.0.0
-// @author      ipwnponies
 // @description When viewing problems by tags, there are no filters.
 //              Why? Who knows. But it's a trivial problem solved with some javscripts.
 // ==/UserScript==

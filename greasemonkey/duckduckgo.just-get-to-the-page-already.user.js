@@ -4,7 +4,6 @@
 // @match       https://duckduckgo.com/*
 // @grant       none
 // @version     1.2
-// @author      ipwnponies
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when using AI chat. It always prompts because no prior cookies when using clean containers
 // ==/UserScript==

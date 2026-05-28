@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name        Auto submit upon paste - freetaxusa.com
-// @author      ipwnponies
 // @match       https://auth.freetaxusa.com/
 // @grant       none
 // @version     1.0

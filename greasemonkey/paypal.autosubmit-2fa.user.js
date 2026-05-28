@@ -4,7 +4,6 @@
 // @match       https://www.paypal.com/authflow/twofactor/*
 // @grant       none
 // @version     1.1
-// @author      ipwnponies
 // @description Clicky button when 2fa code is pasted
 // ==/UserScript==
 
