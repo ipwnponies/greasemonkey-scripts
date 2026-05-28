@@ -5,7 +5,6 @@
 // @match       https://photos.google.com/album/*
 // @grant       none
 // @version     1.0.2
-// @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Keybinding to access the options menu in Google Photos
 // ==/UserScript==

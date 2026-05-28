@@ -4,7 +4,6 @@
 // @match       https://www.tadpoles.com/m/p/*
 // @grant       none
 // @version     1.0
-// @author      ipwnponies
 // @description Direct redirect to image source. This makes it trivial to save the image
 // ==/UserScript==
 

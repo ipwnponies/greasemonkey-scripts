@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name        Always check agree box - loanadministration.com
-// @author      ipwnponies
 // @version     1.1.1
 // @match       https://www.loanadministration.com/*
 // @grant       none

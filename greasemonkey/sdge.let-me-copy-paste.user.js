@@ -5,7 +5,6 @@
 // @match       https://myenergycenter.com/portal/PreLogin/Validate
 // @grant       none
 // @version     1.0.1
-// @author      ipwnponies
 // @description Why the ass would you not allow paste of the 2FA code. Unfuck their shit.
 // ==/UserScript==
 

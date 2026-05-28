@@ -5,7 +5,6 @@
 // @match       https://github.com/*
 // @grant       none
 // @version     1.2.1
-// @author      ipwnponies
 // @description When you're reviewing a github pull request, the last thing you want is to navigate away from that tab.
 // ==/UserScript==
 const mutationCallback = () => {

@@ -6,7 +6,6 @@
 // @grant       GM.registerMenuCommand
 // @grant       GM.getValue
 // @version     1.5.3
-// @author      ipwnponies
 // @description Add a button to clear all items in a playlist.
 // ==/UserScript==
 

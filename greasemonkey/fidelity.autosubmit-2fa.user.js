@@ -4,7 +4,6 @@
 // @match       https://digital.fidelity.com/prgw/digital/login/full-page*
 // @grant       none
 // @version     2.2
-// @author      ipwnponies
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when login or 2fa code is pasted or inserted by password manager
 // ==/UserScript==

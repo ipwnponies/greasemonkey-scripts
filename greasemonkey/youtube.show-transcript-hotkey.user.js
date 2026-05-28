@@ -4,7 +4,6 @@
 // @match       https://www.youtube.com/watch*
 // @grant       none
 // @version     1.0
-// @author      ipwnponies
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Add hotkey to click the show transcript button.
 // ==/UserScript==
