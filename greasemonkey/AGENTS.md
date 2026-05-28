@@ -37,41 +37,56 @@ Multiple `@match` lines are allowed. Use the narrowest pattern that covers the t
 
 ### `@grant` and GM APIs
 
-Two API styles exist:
+Two API styles exist — the grant string must match the API used, they are not aliases:
 
 - **`GM.`** (modern) — Promise-based. Declare as `@grant GM.methodName`.
-- **`GM_`** (legacy) — Synchronous/callback-based. Declare as `@grant GM_methodName`.
+- **`GM_`** (legacy) — Synchronous or callback-based. Declare as `@grant GM_methodName`.
 
-The grant string must match the API style used — they are separate APIs, not aliases.
+Use `@grant none` when you only need to touch the page DOM.
 
-For fire-and-forget operations where you don't need the result (opening a tab, showing a notification, writing to clipboard, setting or deleting a stored value), the returned promise can be ignored:
+#### Fire-and-forget
 
-```js
-// No await needed — fire and forget
-GM.setValue('key', value);
-GM.deleteValue('key');
-GM_openInTab('https://example.com', true);
-GM.notification({ text: 'Done!' });
-GM.setClipboard('text to copy');
-```
-
-When you need the result, `await` it:
+These return Promises but the result is never needed — call without `await`:
 
 ```js
-// @grant GM.getValue
-
-const apiKey = await GM.getValue('apiKey');
+GM.setValue('key', value);      // write to storage
+GM.deleteValue('key');          // delete from storage
+GM.openInTab('https://...');    // open a new tab
+GM.notification({ text: '!' }); // browser notification
+GM.setClipboard('text');        // write to clipboard
+GM.addStyle('body { ... }');    // inject CSS
 ```
 
-Or use the legacy synchronous API to avoid async:
+#### Synchronous in practice
+
+Violentmonkey pre-loads all stored values before the script runs, so the legacy read APIs are synchronous (in-memory reads, no I/O):
 
 ```js
 // @grant GM_getValue
+// @grant GM_listValues
 
-const apiKey = GM_getValue('apiKey');
+const apiKey = GM_getValue('apiKey'); // synchronous, no await needed
+const keys = GM_listValues();         // synchronous
 ```
 
-Use `@grant none` when you only need to touch the page DOM.
+`GM.info` is a plain object property, not a function — just read it directly: `GM.info.script.version`.
+
+Prefer the legacy synchronous forms when reading values at script startup to avoid unnecessary async ceremony.
+
+#### Await when you need the result
+
+```js
+// @grant GM.getValue
+const value = await GM.getValue('key');
+
+// @grant GM.listValues
+const keys = await GM.listValues();
+
+// @grant GM.getResourceURL
+const url = await GM.getResourceURL('icon');
+```
+
+`GM.registerMenuCommand` returns a command ID — capture it if you need to call `GM.unregisterMenuCommand` later.
 
 ### `@require` for Libraries
 
@@ -85,6 +100,44 @@ External libraries are fetched once at install time and bundled locally:
 Pin to a major version (`@2`, `@1`) rather than `latest` to avoid surprise breakage.
 
 ## Core Patterns
+
+### Eager Promises — Deferred Await
+
+Start an async operation immediately at script load, but don't `await` it until the result is actually needed. This lets I/O run in parallel with synchronous setup work rather than blocking it.
+
+```js
+// @grant GM.getValue
+// @grant GM_xmlhttpRequest
+
+// Kick off storage read and network request immediately — neither blocks execution
+const configPromise = GM.getValue('config');
+const dataPromise = new Promise((resolve, reject) => {
+  GM_xmlhttpRequest({
+    method: 'GET',
+    url: 'https://api.example.com/data',
+    onload: (r) => resolve(JSON.parse(r.response)),
+    onerror: reject,
+  });
+});
+
+// Synchronous setup runs while the above are in-flight
+VM.observe(document.body, () => { ... });
+setupEventListeners();
+
+// Only block when the values are actually needed
+async function onButtonClick() {
+  const config = await configPromise; // likely already resolved by now
+  const data = await dataPromise;
+  render(config, data);
+}
+```
+
+The key insight: `await` defers a single call site, not when the Promise starts. Awaiting a Promise that already resolved returns immediately. Kicking off work early makes the eventual `await` cheap.
+
+This is most useful when:
+- Reading stored config (`GM.getValue`) at the top of a script that also does DOM setup
+- Making a background API call whose result is only needed on user interaction
+- Fetching multiple independent resources — start them all, await each only when needed
 
 ### sleep Helper
 
@@ -320,7 +373,7 @@ Standard modifier names: `ctrl`, `alt`, `shift`, `meta`. Key names are lowercase
 
 ## Cross-Origin Requests
 
-Scripts needing requests to external domains must use `GM_xmlhttpRequest` (not `fetch`), which bypasses CORS:
+Scripts needing requests to external domains must use `GM_xmlhttpRequest` (not `fetch`), which bypasses CORS. The legacy form takes an `onload` callback:
 
 ```js
 // @grant GM_xmlhttpRequest
@@ -337,31 +390,59 @@ GM_xmlhttpRequest({
 });
 ```
 
-## Persistent Storage
-
-Use `GM.getValue` / `GM.setValue` for user configuration that survives page reloads.
-
-`GM.getValue` returns a Promise — `await` it when you need the value before continuing:
+Wrap it in a Promise to use `await` and enable the eager-promise pattern:
 
 ```js
-// @grant GM.getValue
+const fetchData = (url) => new Promise((resolve, reject) => {
+  GM_xmlhttpRequest({
+    method: 'GET',
+    url,
+    onload: (r) => resolve(JSON.parse(r.response)),
+    onerror: reject,
+  });
+});
 
-const apiKey = await GM.getValue('apiKey');
+// Start early, await when needed
+const dataPromise = fetchData('https://api.example.com/data');
+// ... other setup ...
+const data = await dataPromise;
+```
+
+## Persistent Storage
+
+Use the GM storage API for user configuration that survives page reloads. Users set values through the extension's storage editor.
+
+**Reading:** prefer the legacy synchronous form at script startup — Violentmonkey pre-loads storage, so `GM_getValue` is an in-memory read with no async overhead:
+
+```js
+// @grant GM_getValue
+
+const apiKey = GM_getValue('apiKey');
 if (!apiKey) {
   alert('Set "apiKey" in script storage before using this script.');
   throw new Error('apiKey not set');
 }
 ```
 
-`GM.setValue` and `GM.deleteValue` are fire-and-forget — no need to `await`:
+If using the modern Promise form, kick it off early and await later (see Eager Promises pattern):
+
+```js
+// @grant GM.getValue
+
+const apiKeyPromise = GM.getValue('apiKey'); // starts immediately
+// ... setup work ...
+const apiKey = await apiKeyPromise;
+```
+
+**Writing:** fire-and-forget, no `await` needed:
 
 ```js
 // @grant GM.setValue
+// @grant GM.deleteValue
 
 GM.setValue('lastRun', Date.now());
+GM.deleteValue('staleKey');
 ```
-
-Users set values through the extension's storage editor.
 
 ## DOM Manipulation Utilities
 
