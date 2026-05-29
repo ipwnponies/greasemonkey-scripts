@@ -4,11 +4,11 @@
 // @match       https://github.com/*/pull/*
 // @match       https://github.com/*
 // @grant       none
-// @version     1.2.1
+// @version     1.2.2
 // @description When you're reviewing a github pull request, the last thing you want is to navigate away from that tab.
 // ==/UserScript==
 const mutationCallback = () => {
-  const isAnchorLink = (origin, pathname) => origin == location.origin && pathname == location.pathname;
+  const isAnchorLink = (origin, pathname) => origin === window.location.origin && pathname === window.location.pathname;
   const links = document.querySelectorAll('.comment-body a');
 
   // Leave anchor links alone. target="_blank" breaks their anchorness.
