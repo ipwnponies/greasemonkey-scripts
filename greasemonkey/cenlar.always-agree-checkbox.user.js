@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Always check agree box - loanadministration.com
-// @version     1.1.1
+// @version     1.1.2
 // @match       https://www.loanadministration.com/*
 // @grant       none
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
@@ -14,4 +14,6 @@ VM.observe(document.querySelector('body'), () => {
     checkbox.click();
     return true;
   }
+
+  return false;
 });

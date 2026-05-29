@@ -4,7 +4,8 @@
 // @match       https://www.dmv.ca.gov/sc/shoppingcart/paymentMethod.do
 // @match       https://www.dmv.ca.gov/sc/shoppingcart/submitECheckPayment.do
 // @grant       none
-// @version     1.0
+// @version     1.0.1
+// @author      ipwnponies
 // @description Allow paste
 // ==/UserScript==
 
