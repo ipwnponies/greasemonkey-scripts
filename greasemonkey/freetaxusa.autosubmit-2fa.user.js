@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name        Auto submit upon paste - freetaxusa.com
+// @namespace   ipwnponies
 // @match       https://auth.freetaxusa.com/
 // @grant       none
-// @version     1.0
+// @version     1.0.1
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @description Clicky button when login or 2fa code is pasted or inserted by password manager
 // ==/UserScript==
@@ -16,4 +17,6 @@ VM.observe(document.querySelector('#mainContentArea'), () => {
 
     return true;
   }
+
+  return false;
 });
