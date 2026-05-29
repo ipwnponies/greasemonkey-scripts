@@ -1,6 +1,13 @@
 env:
   browser: true
   es2021: true
+globals:
+  # Violentmonkey APIs
+  VM: readonly
+  # Greasemonkey/Violentmonkey GM_ APIs (declared per-script via @grant but used as globals)
+  GM_getValue: readonly
+  GM_xmlhttpRequest: readonly
+  GM_openInTab: readonly
 extends:
   - airbnb-base
 parserOptions:
@@ -24,3 +31,7 @@ rules:
       message: Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.
     - selector: WithStatement
       message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.'
+  # DOM manipulation via loop variables is standard in userscripts
+  no-param-reassign:
+    - error
+    - props: false
