@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://trakt.tv/movies/*
 // @grant       GM_registerMenuCommand
-// @version     1.1
+// @version     1.1.1
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Add a link to search movie on rotten tomatoes
 // ==/UserScript==
@@ -22,7 +22,7 @@ rtLink.href = `https://www.rottentomatoes.com/search?search=${getMovieName()}`;
 
 const main = () => {
   const externalLinkContainer = document.querySelector('.external > li');
-  externalLinkContainer.append(rtLink);
+  externalLinkContainer?.append(rtLink);
 };
 
 main();
