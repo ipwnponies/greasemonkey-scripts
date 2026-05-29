@@ -3,9 +3,10 @@
 // @namespace   ipwnponies
 // @match       https://www.tadpoles.com/m/p/*
 // @grant       none
-// @version     1.0
+// @version     1.0.1
 // @description Direct redirect to image source. This makes it trivial to save the image
 // ==/UserScript==
 
+/* global tadpoles */
 // The html document has an inline script that declares `tadpoles` and sets photoURL attribute
-location.assign(tadpoles.photoURL);
+window.location.assign(tadpoles.photoURL);

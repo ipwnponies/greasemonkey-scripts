@@ -5,11 +5,9 @@
 // @match       https://www.youtube.com/embed/*
 // @match       https://www.youtube.com/watch?v=*
 // @grant       none
-// @version     1.1
+// @version     1.1.1
 // @description Redirect from youtube to nocookie embed Add referrer to youtube embed
 // ==/UserScript==
-
-'use strict';
 
 function resolveVideoId(search, pathname) {
   const searchParams = new URLSearchParams(search);
@@ -32,9 +30,10 @@ function resolveVideoId(search, pathname) {
 }
 
 function redirect() {
-  const videoId = resolveVideoId(location.search, location.pathname);
+  const videoId = resolveVideoId(window.location.search, window.location.pathname);
   if (!videoId) {
-    console.warn('Unable to determine YouTube video id for redirect', location.href);
+    // eslint-disable-next-line no-console
+    console.warn('Unable to determine YouTube video id for redirect', window.location.href);
     return;
   }
 
