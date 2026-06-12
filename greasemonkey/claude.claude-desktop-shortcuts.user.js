@@ -38,6 +38,7 @@ const clickOrWarn = (el, name) => {
 /* node:coverage ignore next 5 */
 const clickMic = () => {
   const el = document.querySelector('button[aria-label="Stop dictation"]')
+    ?? document.querySelector('button[aria-label="Finish dictation"]')
     ?? document.querySelector('button[aria-label="Press and hold to record"]');
   clickOrWarn(el, 'microphone');
 };
@@ -49,20 +50,16 @@ const clickModelSelector = () => {
   clickOrWarn(el, 'model selector');
 };
 
-/* node:coverage ignore next 4 */
+/* node:coverage ignore next 3 */
 const clickModeToggle = () => {
-  const el = findByXPath(XPATH_MODE)
-    ?? document.querySelector('button[aria-haspopup="menu"]');
-  clickOrWarn(el, 'mode toggle');
+  clickOrWarn(findByXPath(XPATH_MODE), 'mode toggle');
 };
 
-/* node:coverage ignore next 6 */
+/* node:coverage ignore next 5 */
 const clickFileAttach = () => {
-  const el = document.querySelector('button[aria-label*="attach" i]')
-    ?? document.querySelector('button[aria-label*="file" i]')
-    ?? document.querySelector('button[aria-label*="upload" i]')
-    ?? document.querySelector('input[type="file"]');
-  clickOrWarn(el, 'file attach');
+  document.body.dispatchEvent(new KeyboardEvent('keydown', {
+    ctrlKey: true, key: 'u', bubbles: true, cancelable: true,
+  }));
 };
 
 // --- Command palette ---
