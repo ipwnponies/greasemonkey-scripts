@@ -78,8 +78,10 @@ const COMMANDS = [
 const filterCommands = (query) => COMMANDS.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()));
 
 // Pure: next arrow-key index with wrapping. direction: 1 (down) or -1 (up).
+// current === -1 means no item is selected.
 const getNextIndex = (current, total, direction) => {
   if (total === 0) return -1;
+  if (current === -1) return direction === 1 ? 0 : total - 1;
   return (current + direction + total) % total;
 };
 
@@ -96,11 +98,15 @@ const parseShortcut = (str) => {
   };
 };
 
-/* node:coverage ignore next 4 */
+/* node:coverage ignore next 5 */
 let paletteDialog = null;
+let paletteHandle = null;
 let paletteSearch = null;
 let paletteList = null;
 let palettePos = null; // { left, top } retained for the tab session
+
+// Cached list of palette items — invalidated by renderPaletteItems, read by keydown handler.
+let cachedItems = [];
 
 GM.addStyle(`
   #ipwnponies-palette {
@@ -112,9 +118,25 @@ GM.addStyle(`
     background: #1a1a1a;
     color: #e5e5e5;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    /* Explicit centering — overrides any page CSS that resets UA margin:auto */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
   }
   #ipwnponies-palette::backdrop {
     background: rgba(0,0,0,0.4);
+  }
+  #ipwnponies-palette-handle {
+    padding: 7px 16px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    cursor: move;
+    user-select: none;
+    border-bottom: 1px solid #222;
   }
   #ipwnponies-palette-search {
     width: 100%;
@@ -126,12 +148,6 @@ GM.addStyle(`
     color: inherit;
     font-size: 14px;
     outline: none;
-    cursor: move;
-    user-select: none;
-  }
-  #ipwnponies-palette-search:focus {
-    cursor: text;
-    user-select: auto;
   }
   #ipwnponies-palette-list {
     list-style: none;
@@ -246,6 +262,9 @@ const renderPaletteItems = () => {
 
   const firstItem = paletteList.querySelector('.ipwnponies-palette-item');
   if (firstItem) firstItem.setAttribute('aria-selected', 'true');
+
+  // Invalidate cache after every render.
+  cachedItems = [...paletteList.querySelectorAll('.ipwnponies-palette-item')];
 };
 
 const injectPalette = () => {
@@ -253,6 +272,10 @@ const injectPalette = () => {
 
   paletteDialog = document.createElement('dialog');
   paletteDialog.id = 'ipwnponies-palette';
+
+  paletteHandle = document.createElement('div');
+  paletteHandle.id = 'ipwnponies-palette-handle';
+  paletteHandle.textContent = 'Commands';
 
   paletteSearch = document.createElement('input');
   paletteSearch.id = 'ipwnponies-palette-search';
@@ -264,6 +287,7 @@ const injectPalette = () => {
   paletteList.id = 'ipwnponies-palette-list';
   paletteList.setAttribute('role', 'listbox');
 
+  paletteDialog.appendChild(paletteHandle);
   paletteDialog.appendChild(paletteSearch);
   paletteDialog.appendChild(paletteList);
   document.body.appendChild(paletteDialog);
@@ -271,7 +295,8 @@ const injectPalette = () => {
   paletteSearch.addEventListener('input', renderPaletteItems);
 
   paletteSearch.addEventListener('keydown', (e) => {
-    const items = [...paletteList.querySelectorAll('.ipwnponies-palette-item')];
+    // Use cached items — invalidated by renderPaletteItems on every input event.
+    const items = cachedItems;
     if (!items.length) return;
 
     const selectedIdx = items.findIndex((i) => i.getAttribute('aria-selected') === 'true');
@@ -292,22 +317,47 @@ const injectPalette = () => {
     if (e.target === paletteDialog) paletteDialog.close();
   });
 
-  // Drag by the search bar; position is stored for the session.
-  paletteSearch.addEventListener('mousedown', (e) => {
+  // Drag via the handle bar. Separate from the search input to avoid
+  // suppressing focus/selection on the text field.
+  let dragCleanup = null;
+
+  paletteDialog.addEventListener('close', () => {
+    if (dragCleanup) {
+      dragCleanup();
+      dragCleanup = null;
+    }
+  });
+
+  paletteHandle.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
+
+    // Commit the current visual position to left/top before measuring so the
+    // coordinate frame is consistent throughout the drag.
+    paletteDialog.style.transform = 'none';
+    paletteDialog.style.margin = '0';
+    if (!palettePos) {
+      const r = paletteDialog.getBoundingClientRect();
+      paletteDialog.style.left = `${r.left}px`;
+      paletteDialog.style.top = `${r.top}px`;
+    }
+
     const rect = paletteDialog.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
+
     const onMove = (ev) => {
       palettePos = { left: ev.clientX - offsetX, top: ev.clientY - offsetY };
       paletteDialog.style.left = `${palettePos.left}px`;
       paletteDialog.style.top = `${palettePos.top}px`;
-      paletteDialog.style.margin = '0';
     };
+
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      dragCleanup = null;
     };
+
+    dragCleanup = onUp;
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
     e.preventDefault();
@@ -323,9 +373,10 @@ const togglePalette = () => {
     renderPaletteItems();
     paletteDialog.showModal();
     if (palettePos) {
+      paletteDialog.style.transform = 'none';
+      paletteDialog.style.margin = '0';
       paletteDialog.style.left = `${palettePos.left}px`;
       paletteDialog.style.top = `${palettePos.top}px`;
-      paletteDialog.style.margin = '0';
     }
     paletteSearch.focus();
   }

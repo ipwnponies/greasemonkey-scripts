@@ -86,6 +86,14 @@ test('getNextIndex — up wraps from first to last', () => {
   assert.equal(getNextIndex(0, 4, -1), 3);
 });
 
+test('getNextIndex — ArrowDown with no selection (-1) returns first item', () => {
+  assert.equal(getNextIndex(-1, 4, 1), 0);
+});
+
+test('getNextIndex — ArrowUp with no selection (-1) returns last item', () => {
+  assert.equal(getNextIndex(-1, 4, -1), 3);
+});
+
 test('getNextIndex — returns -1 when list is empty', () => {
   assert.equal(getNextIndex(0, 0, 1), -1);
   assert.equal(getNextIndex(0, 0, -1), -1);
