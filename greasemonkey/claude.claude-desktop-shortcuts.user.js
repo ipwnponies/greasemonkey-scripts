@@ -5,7 +5,7 @@
 // @grant       GM.addStyle
 // @version     1.0.0
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
-// @description Keyboard shortcuts for mic, model, mode, file attach, and command palette
+// @description Mic hotkey and command palette for claude.ai
 // ==/UserScript==
 
 const { register } = VM.shortcut;
@@ -74,14 +74,6 @@ const COMMANDS = [
   { label: 'Attach file', action: clickFileAttach },
 ];
 
-const NATIVE_SHORTCUTS = [
-  { label: 'Open script command palette', shortcut: 'Ctrl+P' },
-  { label: 'Open Claude command palette', shortcut: 'Ctrl+K' },
-  { label: 'New conversation', shortcut: 'Ctrl+Shift+O' },
-  { label: 'Submit message', shortcut: 'Enter' },
-  { label: 'New line in message', shortcut: 'Shift+Enter' },
-];
-
 // Pure: returns COMMANDS entries whose label contains query (case-insensitive).
 const filterCommands = (query) => COMMANDS.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()));
 
@@ -91,10 +83,24 @@ const getNextIndex = (current, total, direction) => {
   return (current + direction + total) % total;
 };
 
-/* node:coverage ignore next 3 */
+// Pure: parses "Ctrl+Shift+K" into a KeyboardEvent init dict.
+const parseShortcut = (str) => {
+  const parts = str.split('+');
+  const key = parts[parts.length - 1];
+  return {
+    ctrlKey: parts.includes('Ctrl'),
+    shiftKey: parts.includes('Shift'),
+    altKey: parts.includes('Alt'),
+    metaKey: parts.includes('Meta'),
+    key: key.length === 1 ? key.toLowerCase() : key,
+  };
+};
+
+/* node:coverage ignore next 4 */
 let paletteDialog = null;
 let paletteSearch = null;
 let paletteList = null;
+let palettePos = null; // { left, top } retained for the tab session
 
 GM.addStyle(`
   #ipwnponies-palette {
@@ -120,6 +126,12 @@ GM.addStyle(`
     color: inherit;
     font-size: 14px;
     outline: none;
+    cursor: move;
+    user-select: none;
+  }
+  #ipwnponies-palette-search:focus {
+    cursor: text;
+    user-select: auto;
   }
   #ipwnponies-palette-list {
     list-style: none;
@@ -159,13 +171,7 @@ GM.addStyle(`
     color: #666;
   }
   .ipwnponies-palette-item.native {
-    color: #888;
-    cursor: default;
-  }
-  .ipwnponies-palette-item.native:hover,
-  .ipwnponies-palette-item.native[aria-selected="true"] {
-    background: transparent;
-    outline: none;
+    color: #aaa;
   }
 `);
 
@@ -180,6 +186,23 @@ const makeCommandClickHandler = (cmd) => () => {
   cmd.action();
 };
 
+// Dispatches a keyboard event to document.body without closing the palette —
+// callers are responsible for closing first via makeCommandClickHandler.
+/* node:coverage ignore next 4 */
+const dispatchShortcut = (str) => {
+  const opts = parseShortcut(str);
+  document.body.dispatchEvent(new KeyboardEvent('keydown', { ...opts, bubbles: true, cancelable: true }));
+};
+
+// Must be defined before renderPaletteItems which iterates over it.
+const NATIVE_SHORTCUTS = [
+  { label: 'Open Claude command palette', shortcut: 'Ctrl+K', action: () => dispatchShortcut('Ctrl+K') },
+  { label: 'New conversation', shortcut: 'Ctrl+Shift+O', action: () => dispatchShortcut('Ctrl+Shift+O') },
+  { label: 'Submit message', shortcut: 'Enter', action: () => dispatchShortcut('Enter') },
+  { label: 'New line in message', shortcut: 'Shift+Enter', action: () => dispatchShortcut('Shift+Enter') },
+];
+
+/* node:coverage disable */
 const renderPaletteItems = () => {
   const query = paletteSearch.value.toLowerCase();
   paletteList.innerHTML = '';
@@ -216,15 +239,15 @@ const renderPaletteItems = () => {
       li.className = 'ipwnponies-palette-item native';
       li.setAttribute('role', 'option');
       li.innerHTML = `<span>${sc.label}</span><span class="ipwnponies-palette-shortcut">${sc.shortcut}</span>`;
+      li.addEventListener('click', makeCommandClickHandler(sc));
       paletteList.appendChild(li);
     }
   }
 
-  const firstItem = paletteList.querySelector('.ipwnponies-palette-item:not(.native)');
+  const firstItem = paletteList.querySelector('.ipwnponies-palette-item');
   if (firstItem) firstItem.setAttribute('aria-selected', 'true');
 };
 
-/* node:coverage ignore next 44 */
 const injectPalette = () => {
   if (document.querySelector('#ipwnponies-palette')) return;
 
@@ -248,7 +271,7 @@ const injectPalette = () => {
   paletteSearch.addEventListener('input', renderPaletteItems);
 
   paletteSearch.addEventListener('keydown', (e) => {
-    const items = [...paletteList.querySelectorAll('.ipwnponies-palette-item:not(.native)')];
+    const items = [...paletteList.querySelectorAll('.ipwnponies-palette-item')];
     if (!items.length) return;
 
     const selectedIdx = items.findIndex((i) => i.getAttribute('aria-selected') === 'true');
@@ -265,9 +288,29 @@ const injectPalette = () => {
     }
   });
 
-  // Close on backdrop click (dialog element itself, not its children)
   paletteDialog.addEventListener('click', (e) => {
     if (e.target === paletteDialog) paletteDialog.close();
+  });
+
+  // Drag by the search bar; position is stored for the session.
+  paletteSearch.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    const rect = paletteDialog.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    const onMove = (ev) => {
+      palettePos = { left: ev.clientX - offsetX, top: ev.clientY - offsetY };
+      paletteDialog.style.left = `${palettePos.left}px`;
+      paletteDialog.style.top = `${palettePos.top}px`;
+      paletteDialog.style.margin = '0';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
   });
 };
 
@@ -279,9 +322,15 @@ const togglePalette = () => {
     paletteSearch.value = '';
     renderPaletteItems();
     paletteDialog.showModal();
+    if (palettePos) {
+      paletteDialog.style.left = `${palettePos.left}px`;
+      paletteDialog.style.top = `${palettePos.top}px`;
+      paletteDialog.style.margin = '0';
+    }
     paletteSearch.focus();
   }
 };
+/* node:coverage enable */
 
 // --- Init ---
 
@@ -294,5 +343,5 @@ register('ctrl-p', togglePalette);
 
 // Exported for unit tests only — not used in browser context.
 if (typeof module !== 'undefined') {
-  module.exports = { filterCommands, getNextIndex };
+  module.exports = { filterCommands, getNextIndex, parseShortcut };
 }

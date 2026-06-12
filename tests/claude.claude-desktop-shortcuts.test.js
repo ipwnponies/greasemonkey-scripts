@@ -36,9 +36,10 @@ const loadUserscript = (overrides = {}) => {
 
 let filterCommands;
 let getNextIndex;
+let parseShortcut;
 
 test('load script and export pure functions', () => {
-  ({ filterCommands, getNextIndex } = loadUserscript());
+  ({ filterCommands, getNextIndex, parseShortcut } = loadUserscript());
   assert.equal(typeof filterCommands, 'function');
   assert.equal(typeof getNextIndex, 'function');
 });
@@ -93,4 +94,34 @@ test('getNextIndex — returns -1 when list is empty', () => {
 test('getNextIndex — single item always returns 0', () => {
   assert.equal(getNextIndex(0, 1, 1), 0);
   assert.equal(getNextIndex(0, 1, -1), 0);
+});
+
+test('parseShortcut — single key', () => {
+  const r = parseShortcut('Enter');
+  assert.equal(r.key, 'Enter');
+  assert.equal(r.ctrlKey, false);
+  assert.equal(r.shiftKey, false);
+  assert.equal(r.altKey, false);
+  assert.equal(r.metaKey, false);
+});
+
+test('parseShortcut — Ctrl+K lowercases single char key', () => {
+  const r = parseShortcut('Ctrl+K');
+  assert.equal(r.key, 'k');
+  assert.equal(r.ctrlKey, true);
+  assert.equal(r.shiftKey, false);
+});
+
+test('parseShortcut — Ctrl+Shift+O', () => {
+  const r = parseShortcut('Ctrl+Shift+O');
+  assert.equal(r.key, 'o');
+  assert.equal(r.ctrlKey, true);
+  assert.equal(r.shiftKey, true);
+});
+
+test('parseShortcut — Shift+Enter preserves multi-char key', () => {
+  const r = parseShortcut('Shift+Enter');
+  assert.equal(r.key, 'Enter');
+  assert.equal(r.shiftKey, true);
+  assert.equal(r.ctrlKey, false);
 });
