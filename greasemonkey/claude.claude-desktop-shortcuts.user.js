@@ -33,14 +33,37 @@ const clickOrWarn = (el, name) => {
   }
 };
 
+/* node:coverage ignore next 8 */
+const showToast = (msg) => {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);'
+    + 'background:#333;color:#fff;padding:8px 16px;border-radius:6px;'
+    + 'font-size:13px;z-index:2147483647;pointer-events:none;transition:opacity 0.3s';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2000);
+};
+
 // --- Actions ---
 
-/* node:coverage ignore next 5 */
+/* node:coverage ignore next 18 */
 const clickMic = () => {
-  const el = document.querySelector('button[aria-label="Stop dictation"]')
-    ?? document.querySelector('button[aria-label="Finish dictation"]')
-    ?? document.querySelector('button[aria-label="Press and hold to record"]');
-  clickOrWarn(el, 'microphone');
+  const stopEl = document.querySelector('button[aria-label="Stop dictation"]')
+    ?? document.querySelector('button[aria-label="Finish dictation"]');
+  if (stopEl) { stopEl.click(); return; }
+  const startEl = document.querySelector('button[aria-label="Press and hold to record"]');
+  if (!startEl) {
+    // eslint-disable-next-line no-console
+    console.warn('[claude-shortcuts] microphone button not found');
+    return;
+  }
+  const pOpts = { bubbles: true, cancelable: true, button: 0 };
+  startEl.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+  startEl.dispatchEvent(new PointerEvent('pointerdown', { ...pOpts, isPrimary: true }));
+  startEl.dispatchEvent(new MouseEvent('mousedown', pOpts));
+  startEl.dispatchEvent(new PointerEvent('pointerup', { ...pOpts, isPrimary: true }));
+  startEl.dispatchEvent(new MouseEvent('mouseup', pOpts));
+  startEl.dispatchEvent(new MouseEvent('click', pOpts));
 };
 
 /* node:coverage ignore next 4 */
@@ -50,9 +73,11 @@ const clickModelSelector = () => {
   clickOrWarn(el, 'model selector');
 };
 
-/* node:coverage ignore next 3 */
+/* node:coverage ignore next 5 */
 const clickModeToggle = () => {
-  clickOrWarn(findByXPath(XPATH_MODE), 'mode toggle');
+  const el = findByXPath(XPATH_MODE);
+  if (!el) { showToast('Mode toggle not available here'); return; }
+  el.click();
 };
 
 /* node:coverage ignore next 5 */
