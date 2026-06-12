@@ -10,7 +10,12 @@
 
 const { register } = VM.shortcut;
 
-const XPATH_MODE = '//button[normalize-space(.)="Plan" or normalize-space(.)="Accept" or normalize-space(.)="Auto"]';
+// Primary: button's full text is exactly the mode name (no extraneous child text).
+// Fallback: button contains a <span> with exactly the mode name (handles SVG-with-title siblings).
+const XPATH_MODE = '//button['
+  + 'normalize-space(.)="Plan" or normalize-space(.)="Accept" or normalize-space(.)="Auto"'
+  + ' or .//span[normalize-space(.)="Plan" or normalize-space(.)="Accept" or normalize-space(.)="Auto"]'
+  + ']';
 const XPATH_MODEL = '//button['
   + 'contains(normalize-space(.),"Claude") or contains(normalize-space(.),"Sonnet")'
   + ' or contains(normalize-space(.),"Haiku") or contains(normalize-space(.),"Opus")'
@@ -219,9 +224,12 @@ const setSelected = (items, idx) => {
   items[idx]?.scrollIntoView({ block: 'nearest' });
 };
 
+// Defer action so the Enter keydown that triggered this click finishes propagating
+// before we dispatch synthetic shortcuts — otherwise the event leaks into any
+// native palette that opens (e.g. Ctrl+K palette grabbing the still-bubbling Enter).
 const makeCommandClickHandler = (cmd) => () => {
   paletteDialog.close();
-  cmd.action();
+  setTimeout(cmd.action, 0);
 };
 
 // Dispatches a keyboard event to document.body without closing the palette —
@@ -325,12 +333,15 @@ const injectPalette = () => {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      e.stopPropagation();
       setSelected(items, getNextIndex(selectedIdx, items.length, 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      e.stopPropagation();
       setSelected(items, getNextIndex(selectedIdx, items.length, -1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       items[selectedIdx]?.click();
     }
   });
