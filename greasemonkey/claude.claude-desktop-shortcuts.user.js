@@ -37,9 +37,8 @@ const clickOrWarn = (el, name) => {
 
 /* node:coverage ignore next 5 */
 const clickMic = () => {
-  const el = document.querySelector('button[aria-label*="voice" i]')
-    ?? document.querySelector('button[aria-label*="microphone" i]')
-    ?? document.querySelector('button[aria-label*="record" i]');
+  const el = document.querySelector('button[aria-label="Stop dictation"]')
+    ?? document.querySelector('button[aria-label="Press and hold to record"]');
   clickOrWarn(el, 'microphone');
 };
 
@@ -70,12 +69,13 @@ const clickFileAttach = () => {
 
 const COMMANDS = [
   { label: 'Toggle microphone', shortcut: 'Ctrl+D', action: clickMic },
-  { label: 'Open model selector', shortcut: 'Ctrl+Shift+I', action: clickModelSelector },
-  { label: 'Toggle mode (Plan/Accept/Auto)', shortcut: 'Ctrl+Shift+M', action: clickModeToggle },
-  { label: 'Attach file', shortcut: 'Ctrl+U', action: clickFileAttach },
+  { label: 'Open model selector', action: clickModelSelector },
+  { label: 'Toggle mode (Plan/Accept/Auto)', action: clickModeToggle },
+  { label: 'Attach file', action: clickFileAttach },
 ];
 
 const NATIVE_SHORTCUTS = [
+  { label: 'Open script command palette', shortcut: 'Ctrl+P' },
   { label: 'Open Claude command palette', shortcut: 'Ctrl+K' },
   { label: 'New conversation', shortcut: 'Ctrl+Shift+O' },
   { label: 'Submit message', shortcut: 'Enter' },
@@ -169,20 +169,17 @@ GM.addStyle(`
   }
 `);
 
-/* node:coverage ignore next 5 */
 const setSelected = (items, idx) => {
   for (const item of items) item.removeAttribute('aria-selected');
   items[idx]?.setAttribute('aria-selected', 'true');
   items[idx]?.scrollIntoView({ block: 'nearest' });
 };
 
-/* node:coverage ignore next 4 */
 const makeCommandClickHandler = (cmd) => () => {
   paletteDialog.close();
   cmd.action();
 };
 
-/* node:coverage disable */
 const renderPaletteItems = () => {
   const query = paletteSearch.value.toLowerCase();
   paletteList.innerHTML = '';
@@ -202,7 +199,7 @@ const renderPaletteItems = () => {
       const li = document.createElement('li');
       li.className = 'ipwnponies-palette-item';
       li.setAttribute('role', 'option');
-      li.innerHTML = `<span>${cmd.label}</span><span class="ipwnponies-palette-shortcut">${cmd.shortcut}</span>`;
+      li.innerHTML = `<span>${cmd.label}</span><span class="ipwnponies-palette-shortcut">${cmd.shortcut ?? ''}</span>`;
       li.addEventListener('click', makeCommandClickHandler(cmd));
       paletteList.appendChild(li);
     }
@@ -227,6 +224,7 @@ const renderPaletteItems = () => {
   if (firstItem) firstItem.setAttribute('aria-selected', 'true');
 };
 
+/* node:coverage ignore next 44 */
 const injectPalette = () => {
   if (document.querySelector('#ipwnponies-palette')) return;
 
@@ -285,18 +283,13 @@ const togglePalette = () => {
   }
 };
 
-/* node:coverage enable */
-
 // --- Init ---
 
 /* node:coverage disable */
 injectPalette();
 
 register('ctrl-d', clickMic);
-register('ctrl-shift-i', clickModelSelector);
-register('ctrl-shift-m', clickModeToggle);
-register('ctrl-u', clickFileAttach);
-register('ctrl-shift-p', togglePalette);
+register('ctrl-p', togglePalette);
 /* node:coverage enable */
 
 // Exported for unit tests only — not used in browser context.

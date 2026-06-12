@@ -46,7 +46,7 @@ test('load script and export pure functions', () => {
 test('filterCommands — empty query returns all commands', () => {
   const result = filterCommands('');
   assert.ok(result.length > 0);
-  assert.ok(result.every((c) => 'label' in c && 'shortcut' in c && 'action' in c));
+  assert.ok(result.every((c) => 'label' in c && 'action' in c));
 });
 
 test('filterCommands — matches substring case-insensitively', () => {
