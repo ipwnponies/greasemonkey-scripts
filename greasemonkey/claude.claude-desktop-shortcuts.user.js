@@ -18,10 +18,12 @@ const XPATH_MODEL = '//button['
 
 // --- Utilities ---
 
+/* node:coverage ignore next 3 */
 const findByXPath = (xpath) => document.evaluate(
   xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null,
 ).singleNodeValue;
 
+/* node:coverage ignore next 7 */
 const clickOrWarn = (el, name) => {
   if (el) {
     el.click();
@@ -33,6 +35,7 @@ const clickOrWarn = (el, name) => {
 
 // --- Actions ---
 
+/* node:coverage ignore next 5 */
 const clickMic = () => {
   const el = document.querySelector('button[aria-label*="voice" i]')
     ?? document.querySelector('button[aria-label*="microphone" i]')
@@ -40,18 +43,21 @@ const clickMic = () => {
   clickOrWarn(el, 'microphone');
 };
 
+/* node:coverage ignore next 4 */
 const clickModelSelector = () => {
   const el = document.querySelector('button[aria-label*="model" i]')
     ?? findByXPath(XPATH_MODEL);
   clickOrWarn(el, 'model selector');
 };
 
+/* node:coverage ignore next 4 */
 const clickModeToggle = () => {
   const el = findByXPath(XPATH_MODE)
     ?? document.querySelector('button[aria-haspopup="menu"]');
   clickOrWarn(el, 'mode toggle');
 };
 
+/* node:coverage ignore next 6 */
 const clickFileAttach = () => {
   const el = document.querySelector('button[aria-label*="attach" i]')
     ?? document.querySelector('button[aria-label*="file" i]')
@@ -76,6 +82,16 @@ const NATIVE_SHORTCUTS = [
   { label: 'New line in message', shortcut: 'Shift+Enter' },
 ];
 
+// Pure: returns COMMANDS entries whose label contains query (case-insensitive).
+const filterCommands = (query) => COMMANDS.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()));
+
+// Pure: next arrow-key index with wrapping. direction: 1 (down) or -1 (up).
+const getNextIndex = (current, total, direction) => {
+  if (total === 0) return -1;
+  return (current + direction + total) % total;
+};
+
+/* node:coverage ignore next 3 */
 let paletteDialog = null;
 let paletteSearch = null;
 let paletteList = null;
@@ -153,22 +169,25 @@ GM.addStyle(`
   }
 `);
 
+/* node:coverage ignore next 5 */
 const setSelected = (items, idx) => {
   for (const item of items) item.removeAttribute('aria-selected');
   items[idx]?.setAttribute('aria-selected', 'true');
   items[idx]?.scrollIntoView({ block: 'nearest' });
 };
 
+/* node:coverage ignore next 4 */
 const makeCommandClickHandler = (cmd) => () => {
   paletteDialog.close();
   cmd.action();
 };
 
+/* node:coverage disable */
 const renderPaletteItems = () => {
   const query = paletteSearch.value.toLowerCase();
   paletteList.innerHTML = '';
 
-  const filtered = COMMANDS.filter((c) => c.label.toLowerCase().includes(query));
+  const filtered = filterCommands(query);
   const filteredNative = query ? [] : NATIVE_SHORTCUTS;
 
   if (filtered.length) {
@@ -238,10 +257,10 @@ const injectPalette = () => {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelected(items, selectedIdx < items.length - 1 ? selectedIdx + 1 : 0);
+      setSelected(items, getNextIndex(selectedIdx, items.length, 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelected(items, selectedIdx > 0 ? selectedIdx - 1 : items.length - 1);
+      setSelected(items, getNextIndex(selectedIdx, items.length, -1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       items[selectedIdx]?.click();
@@ -266,8 +285,11 @@ const togglePalette = () => {
   }
 };
 
+/* node:coverage enable */
+
 // --- Init ---
 
+/* node:coverage disable */
 injectPalette();
 
 register('ctrl-d', clickMic);
@@ -275,3 +297,9 @@ register('ctrl-shift-i', clickModelSelector);
 register('ctrl-shift-m', clickModeToggle);
 register('ctrl-u', clickFileAttach);
 register('ctrl-shift-p', togglePalette);
+/* node:coverage enable */
+
+// Exported for unit tests only — not used in browser context.
+if (typeof module !== 'undefined') {
+  module.exports = { filterCommands, getNextIndex };
+}
