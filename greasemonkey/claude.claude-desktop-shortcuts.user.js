@@ -66,7 +66,7 @@ const clickModeToggle = () => {
 
 /* node:coverage ignore next 5 */
 const clickFileAttach = () => {
-  document.body.dispatchEvent(new KeyboardEvent('keydown', {
+  document.dispatchEvent(new KeyboardEvent('keydown', {
     ctrlKey: true, key: 'u', bubbles: true, cancelable: true,
   }));
 };
@@ -211,12 +211,13 @@ const makeCommandClickHandler = (cmd) => () => {
   setTimeout(cmd.action, 0);
 };
 
-// Dispatches a keyboard event to document.body without closing the palette —
-// callers are responsible for closing first via makeCommandClickHandler.
+// Dispatches a keyboard event to document (not body) so SPA shortcut handlers
+// registered at the document level receive it regardless of capture/bubble phase.
+// Callers are responsible for closing the palette first via makeCommandClickHandler.
 /* node:coverage ignore next 4 */
 const dispatchShortcut = (str) => {
   const opts = parseShortcut(str);
-  document.body.dispatchEvent(new KeyboardEvent('keydown', { ...opts, bubbles: true, cancelable: true }));
+  document.dispatchEvent(new KeyboardEvent('keydown', { ...opts, bubbles: true, cancelable: true }));
 };
 
 // Must be defined before renderPaletteItems which iterates over it.
@@ -358,7 +359,12 @@ const injectPalette = () => {
     const offsetY = e.clientY - rect.top;
 
     const onMove = (ev) => {
-      palettePos = { left: ev.clientX - offsetX, top: ev.clientY - offsetY };
+      const maxLeft = window.innerWidth - paletteDialog.offsetWidth;
+      const maxTop = window.innerHeight - paletteDialog.offsetHeight;
+      palettePos = {
+        left: Math.max(0, Math.min(ev.clientX - offsetX, maxLeft)),
+        top: Math.max(0, Math.min(ev.clientY - offsetY, maxTop)),
+      };
       paletteDialog.style.left = `${palettePos.left}px`;
       paletteDialog.style.top = `${palettePos.top}px`;
     };
