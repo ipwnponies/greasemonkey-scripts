@@ -45,12 +45,20 @@ const clickMic = () => {
   startEl.dispatchEvent(new MouseEvent('click', pOpts));
 };
 
-/* node:coverage ignore next 6 */
+/* node:coverage ignore next 11 */
 const clickModelSelector = () => {
-  // Ctrl+Alt+I — native Claude Code shortcut; also dispatched in chat (no-op if unhandled there)
-  document.body.dispatchEvent(new KeyboardEvent('keydown', {
-    ctrlKey: true, altKey: true, key: 'i', bubbles: true, cancelable: true,
-  }));
+  if (window.location.pathname.startsWith('/code')) {
+    // Ctrl+Alt+I — native Claude Code shortcut
+    document.body.dispatchEvent(new KeyboardEvent('keydown', {
+      ctrlKey: true, altKey: true, key: 'i', bubbles: true, cancelable: true,
+    }));
+    return;
+  }
+  // Claude Chat: no native shortcut — find model dropdown button by aria-haspopup + model name text
+  const btn = [...document.querySelectorAll('button[aria-haspopup="menu"]')]
+    .find((b) => /\b(Claude|Sonnet|Haiku|Opus)\b/i.test(b.textContent));
+  // eslint-disable-next-line no-console
+  if (btn) btn.click(); else console.warn('[claude-shortcuts] model selector button not found');
 };
 
 /* node:coverage ignore next 7 */
