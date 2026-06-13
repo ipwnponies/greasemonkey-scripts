@@ -10,16 +10,16 @@
 
 const { register } = VM.shortcut;
 
-// Primary: button's full text is exactly the mode name (no extraneous child text).
-// Fallback: button contains a <span> with exactly the mode name (handles SVG-with-title siblings).
-const XPATH_MODE = '//button['
-  + 'normalize-space(.)="Plan" or normalize-space(.)="Accept" or normalize-space(.)="Auto"'
-  + ' or .//span[normalize-space(.)="Plan" or normalize-space(.)="Accept" or normalize-space(.)="Auto"]'
-  + ']';
-const XPATH_MODEL = '//button['
+// aria-haspopup="menu" constrains to toolbar dropdowns, excluding sidebar nav items.
+// Accept mode shows "Accept edits" so use contains() rather than equality.
+const XPATH_MODE = '//button[@aria-haspopup="menu" and ('
+  + 'normalize-space(.)="Plan" or normalize-space(.)="Auto" or contains(normalize-space(.),"Accept")'
+  + ')]';
+// Same aria-haspopup guard prevents matching conversation titles ("Claude.ai ...") in sidebar.
+const XPATH_MODEL = '//button[@aria-haspopup="menu" and ('
   + 'contains(normalize-space(.),"Claude") or contains(normalize-space(.),"Sonnet")'
   + ' or contains(normalize-space(.),"Haiku") or contains(normalize-space(.),"Opus")'
-  + ']';
+  + ')]';
 
 // --- Utilities ---
 
@@ -71,11 +71,9 @@ const clickMic = () => {
   startEl.dispatchEvent(new MouseEvent('click', pOpts));
 };
 
-/* node:coverage ignore next 4 */
+/* node:coverage ignore next 3 */
 const clickModelSelector = () => {
-  const el = document.querySelector('button[aria-label*="model" i]')
-    ?? findByXPath(XPATH_MODEL);
-  clickOrWarn(el, 'model selector');
+  clickOrWarn(findByXPath(XPATH_MODEL), 'model selector');
 };
 
 /* node:coverage ignore next 5 */
