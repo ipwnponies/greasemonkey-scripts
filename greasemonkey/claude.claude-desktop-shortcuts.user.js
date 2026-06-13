@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://claude.ai/*
 // @grant       GM.addStyle
-// @version     1.0.0
+// @version     1.1.0
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @description Mic hotkey and command palette for claude.ai
 // ==/UserScript==
