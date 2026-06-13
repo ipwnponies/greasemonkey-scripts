@@ -10,33 +10,7 @@
 
 const { register } = VM.shortcut;
 
-// aria-haspopup="menu" constrains to toolbar dropdowns, excluding sidebar nav items.
-// Accept mode shows "Accept edits" so use contains() rather than equality.
-const XPATH_MODE = '//button[@aria-haspopup="menu" and ('
-  + 'normalize-space(.)="Plan" or normalize-space(.)="Auto" or contains(normalize-space(.),"Accept")'
-  + ')]';
-// Same aria-haspopup guard prevents matching conversation titles ("Claude.ai ...") in sidebar.
-const XPATH_MODEL = '//button[@aria-haspopup="menu" and ('
-  + 'contains(normalize-space(.),"Claude") or contains(normalize-space(.),"Sonnet")'
-  + ' or contains(normalize-space(.),"Haiku") or contains(normalize-space(.),"Opus")'
-  + ')]';
-
 // --- Utilities ---
-
-/* node:coverage ignore next 3 */
-const findByXPath = (xpath) => document.evaluate(
-  xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null,
-).singleNodeValue;
-
-/* node:coverage ignore next 7 */
-const clickOrWarn = (el, name) => {
-  if (el) {
-    el.click();
-  } else {
-    // eslint-disable-next-line no-console
-    console.warn(`[claude-shortcuts] ${name} button not found`);
-  }
-};
 
 /* node:coverage ignore next 8 */
 const showToast = (msg) => {
@@ -71,16 +45,24 @@ const clickMic = () => {
   startEl.dispatchEvent(new MouseEvent('click', pOpts));
 };
 
-/* node:coverage ignore next 3 */
+/* node:coverage ignore next 6 */
 const clickModelSelector = () => {
-  clickOrWarn(findByXPath(XPATH_MODEL), 'model selector');
+  // Ctrl+Alt+I — native Claude Code shortcut; also dispatched in chat (no-op if unhandled there)
+  document.body.dispatchEvent(new KeyboardEvent('keydown', {
+    ctrlKey: true, altKey: true, key: 'i', bubbles: true, cancelable: true,
+  }));
 };
 
-/* node:coverage ignore next 5 */
+/* node:coverage ignore next 7 */
 const clickModeToggle = () => {
-  const el = findByXPath(XPATH_MODE);
-  if (!el) { showToast('Mode toggle not available here'); return; }
-  el.click();
+  if (!window.location.pathname.startsWith('/code')) {
+    showToast('Mode toggle not available here');
+    return;
+  }
+  // Ctrl+Alt+M — native Claude Code shortcut
+  document.body.dispatchEvent(new KeyboardEvent('keydown', {
+    ctrlKey: true, altKey: true, key: 'm', bubbles: true, cancelable: true,
+  }));
 };
 
 /* node:coverage ignore next 5 */
