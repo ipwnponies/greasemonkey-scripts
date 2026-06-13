@@ -1,4 +1,3 @@
-/* global GM */
 // ==UserScript==
 // @name        Clear Youtube playlists
 // @namespace   ipwnponies

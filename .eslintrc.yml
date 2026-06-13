@@ -4,6 +4,7 @@ env:
 globals:
   # Violentmonkey APIs
   VM: readonly
+  GM: readonly
   # Greasemonkey/Violentmonkey GM_ APIs (declared per-script via @grant but used as globals)
   GM_getValue: readonly
   GM_xmlhttpRequest: readonly
