@@ -9,7 +9,7 @@
 // @require      https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @grant        none
 // ==/UserScript==
-'use strict';
+/* global TurndownService */
 
 // ---- config -------------------------------------------------------
 const DEBUG = true; // set false to silence console output
@@ -50,11 +50,11 @@ let seenCustomTags = new Map();
 
 // ---- small helpers --------------------------------------------------------
 function cleanText(s) {
-  return s.replace(/ /g, ' ').replace(/\s+/g, ' ');
+  return s.replace(/\u00A0/g, ' ').replace(/\s+/g, ' ');
 }
 
 function rawText(el) {
-  return el.textContent.replace(/ /g, ' ');
+  return el.textContent.replace(/\u00A0/g, ' ');
 }
 
 // escape chars that would be misread as markdown syntax in plain
@@ -70,7 +70,7 @@ function fencedBlock(preEl) {
   const m = (preEl.className || codeEl.className || '').match(/language-(\w+)/);
   const lang = m ? m[1] : '';
   if (!m) dwarn('fencedBlock: no language-* class found on', preEl);
-  return '```' + lang + '\n' + rawText(codeEl).replace(/\s+$/, '') + '\n```\n';
+  return `\`\`\`${lang}\n${rawText(codeEl).replace(/\s+$/, '')}\n\`\`\`\n`;
 }
 
 // Grab the currently-active tab from an <app-code-tabs> block.
@@ -79,7 +79,7 @@ function codeTabsToMarkdown(node) {
   let active = node.querySelector('.code-tab-panel.active');
   if (!active) {
     dwarn('codeTabsToMarkdown: no .code-tab-panel.active, falling back to first of', panels.length, 'panels');
-    active = panels[0];
+    [active] = panels;
   }
   if (!active) {
     dwarn('codeTabsToMarkdown: no .code-tab-panel found at all');
@@ -90,7 +90,7 @@ function codeTabsToMarkdown(node) {
     dwarn('codeTabsToMarkdown: active panel has no <pre>', active);
     return '';
   }
-  return '\n\n' + fencedBlock(pre) + '\n';
+  return `\n\n${fencedBlock(pre)}\n`;
 }
 
 // ---- Turndown setup -------------------------------------------------------
@@ -219,19 +219,20 @@ function extractUserCode() {
   });
   for (const ed of editors) {
     const lines = Array.from(ed.querySelectorAll('.view-line'));
-    if (!lines.length) continue;
-    lines.sort((a, b) => (parseFloat(a.style.top) || 0) - (parseFloat(b.style.top) || 0));
-    return lines
-      .map((l) => rawText(l).replace(/[ \t]+$/, ''))
-      .join('\n')
-      .replace(/\s+$/, '');
+    if (lines.length) {
+      lines.sort((a, b) => (parseFloat(a.style.top) || 0) - (parseFloat(b.style.top) || 0));
+      return lines
+        .map((l) => rawText(l).replace(/[ \t]+$/, ''))
+        .join('\n')
+        .replace(/\s+$/, '');
+    }
   }
   return '';
 }
 
 // ---- main build -------------------------------------------------------
 function buildMarkdown() {
-  console.group(PREFIX + ' build');
+  console.group(`${PREFIX} build`);
   seenCustomTags = new Map();
   const parts = [];
 
@@ -248,9 +249,9 @@ function buildMarkdown() {
     dlog('title:', titleEl ? titleEl.textContent.trim() : 'NOT FOUND (.problem-title)');
     dlog('difficulty:', diffEl ? diffEl.textContent.trim() : 'NOT FOUND (.difficulty-pill)');
     if (titleEl) {
-      let title = '# ' + titleEl.textContent.trim();
-      if (diffEl) title += ' (' + diffEl.textContent.trim() + ')';
-      parts.push(title + '\n');
+      let title = `# ${titleEl.textContent.trim()}`;
+      if (diffEl) title += ` (${diffEl.textContent.trim()})`;
+      parts.push(`${title}\n`);
     }
   } catch (e) {
     derror('title section failed', e);
@@ -264,7 +265,7 @@ function buildMarkdown() {
       const md = articleToMarkdown(td, questionArticle);
       dlog('question markdown length:', md.length);
       if (!md) dwarn('question article found but produced empty markdown');
-      if (md) parts.push('## Problem\n\n' + md);
+      if (md) parts.push(`## Problem\n\n${md}`);
     } else {
       dwarn('No ".question-tab app-article" - selector may not match on this page/layout');
     }
@@ -276,11 +277,12 @@ function buildMarkdown() {
   try {
     const userCode = extractUserCode();
     dlog('extracted user code length:', userCode.length);
-    if (!userCode)
+    if (!userCode) {
       dwarn(
         'No code extracted - check .view-lines.monaco-mouse-cursor-text / .view-line selectors, or editor may not be rendered yet',
       );
-    if (userCode) parts.push('## My Code\n\n```\n' + userCode + '\n```');
+    }
+    if (userCode) parts.push(`## My Code\n\n\`\`\`\n${userCode}\n\`\`\``);
   } catch (e) {
     derror('user code section failed', e);
   }
@@ -303,7 +305,7 @@ function buildMarkdown() {
         if (md) chunks.push(md);
       });
       if (chunks.length) {
-        parts.push('## NeetCode Solution\n\n' + chunks.join('\n\n---\n\n'));
+        parts.push(`## NeetCode Solution\n\n${chunks.join('\n\n---\n\n')}`);
       } else {
         dwarn('Solutions tab present but produced no usable content');
       }
@@ -323,7 +325,7 @@ function buildMarkdown() {
     dlog('No unhandled custom elements encountered.');
   }
 
-  parts.push('\n_Source: ' + location.href + '_');
+  parts.push(`\n_Source: ${window.location.href}_`);
 
   const result = parts.join('\n\n').trim();
   dlog('total parts:', parts.length, '| total length:', result.length);
@@ -355,8 +357,8 @@ function showToast(msg) {
   }
   t.textContent = msg;
   t.style.opacity = '1';
-  clearTimeout(t._hideTimer);
-  t._hideTimer = setTimeout(() => {
+  clearTimeout(t.hideTimer);
+  t.hideTimer = setTimeout(() => {
     t.style.opacity = '0';
   }, 1800);
 }
@@ -391,4 +393,3 @@ VM.shortcut.register('alt-shift-c', async () => {
   showToast(status);
   dlog('clipboard write ok:', ok);
 });
-
