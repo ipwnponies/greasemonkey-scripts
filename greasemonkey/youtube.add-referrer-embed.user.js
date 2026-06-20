@@ -3,7 +3,7 @@
 // @namespace   ipwnponies
 // @match       https://www.youtube-nocookie.com/embed/*
 // @grant       none
-// @version     1.0.2
+// @version     1.0.3
 // @description Add referrer to youtube embed. So that it works. Incredible
 // ==/UserScript==
 
