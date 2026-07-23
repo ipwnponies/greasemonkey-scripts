@@ -1,0 +1,29 @@
+/* ==UserStyle==
+@name           neetcode.io
+@namespace      ipwnponies
+@version        1.0.0
+@description    Maybe my font choice is better
+==/UserStyle== */
+@-moz-document url-prefix("https://neetcode.io/problems/") {
+    .monaco-editor {
+        --monaco-monospace-font: monospace !important;
+    }
+
+    /* Don't touch codicon, vscode icons embedded as font. Oh hey, powerlines called */
+    .monaco-editor,
+    .monaco-editor *:not(.codicon),
+    .suggest-widget,
+    .suggest-widget *:not(.codicon),
+    .monaco-hover,
+    .monaco-hover *:not(.codicon) {
+        font-family: monospace !important;
+    }
+
+    .console-text,
+    .test-case-input,
+    .test-case-value,
+    .inline-diff-viewzone-code,
+    .markdown-content code {
+        font-family: monospace !important;
+    }
+}
