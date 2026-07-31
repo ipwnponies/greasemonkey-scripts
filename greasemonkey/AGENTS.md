@@ -108,6 +108,10 @@ Prefer `requestAnimationFrame` over `setTimeout(fn, 0)` when waiting for a rende
 
 Start async operations at script load, `await` only when the result is needed. Awaiting an already-resolved Promise returns immediately.
 
+### Hotkey + menu command fallback
+
+Pair `VM.shortcut.register` with `GM.registerMenuCommand`, both calling the same handler function — hotkey for speed, menu command as a discoverable fallback when the shortcut isn't bound or known.
+
 ## DOM Utilities
 
 ### XPath
