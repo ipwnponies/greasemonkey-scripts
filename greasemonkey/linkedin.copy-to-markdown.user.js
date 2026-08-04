@@ -64,7 +64,6 @@ const SECTION_KEYS = [
   ABOUT_THE_JOB_KEY,
   'JobDetails_AboutTheCompany_',
   'JobDetailsPeopleWhoCanHelpSlot_',
-  'JobDetailsSimilarJobsSlot_',
 ];
 
 function collectSections(root) {

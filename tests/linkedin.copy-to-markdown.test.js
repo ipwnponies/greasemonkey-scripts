@@ -122,7 +122,6 @@ test('collectSections — returns non-empty content slots in document order', ()
   assert.deepEqual(keys, [
     'JobDetails_AboutTheJob_1000000001',
     'JobDetails_AboutTheCompany_1000000001',
-    'JobDetailsSimilarJobsSlot_1000000001',
   ]);
 });
 
@@ -144,6 +143,7 @@ test('collectSections — excludes premium and furniture slots', () => {
     'JobDetails_ResumeReview_',
     'JobDetails_ManageJobBanner_',
     'JobDetails_JobAlertToggle_',
+    'JobDetailsSimilarJobsSlot_',
   ];
   excluded.forEach((prefix) => {
     assert.ok(!keys.some((k) => k.startsWith(prefix)), `${prefix} should not be collected`);
@@ -267,16 +267,16 @@ test('buildMarkdown — includes every allow-listed section', () => {
   assert.match(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
   assert.match(md, /Software Development . 501-1000 employees/);
-  assert.match(md, /More jobs/);
-  assert.match(md, /\$210K\/yr - \$290K\/yr/);
 });
 
-test('buildMarkdown — excludes premium upsell content', () => {
+test('buildMarkdown — excludes premium upsell and similar-jobs content', () => {
   const md = buildFixtureMarkdown();
   assert.doesNotMatch(md, /Reactivate Premium/);
   assert.doesNotMatch(md, /Use AI to assess how you fit/);
   assert.doesNotMatch(md, /Job search faster with Premium/);
   assert.doesNotMatch(md, /Set alert for similar jobs/);
+  assert.doesNotMatch(md, /More jobs/);
+  assert.doesNotMatch(md, /\$210K\/yr - \$290K\/yr/);
 });
 
 test('buildMarkdown — ends with a source footer carrying the job id', () => {
@@ -307,7 +307,6 @@ test('buildMarkdown — a section that throws does not lose the other sections',
   const md = buildMarkdown(doc, root, flakyTurndown, 'https://www.linkedin.com/jobs/view/1000000001/');
   assert.doesNotMatch(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
-  assert.match(md, /More jobs/);
   assert.ok(md.endsWith('_Source: https://www.linkedin.com/jobs/view/1000000001/ — job ID 1000000001_'));
 });
 
@@ -327,6 +326,5 @@ test('buildMarkdown — a header that throws does not lose the sections', () => 
   assert.doesNotMatch(md, /Reposted 2 days ago/);
   assert.match(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
-  assert.match(md, /More jobs/);
   assert.ok(md.endsWith('_Source: https://www.linkedin.com/jobs/view/1000000001/ — job ID 1000000001_'));
 });
