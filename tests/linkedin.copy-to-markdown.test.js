@@ -210,9 +210,10 @@ test('extractJobId — returns an empty string when the id is unknowable', () =>
 });
 
 // Turndown loads from a CDN at runtime and is third-party; the fake keeps these
-// tests about which content is selected, not about markdown fidelity.
+// tests about which content is selected, not about markdown fidelity. buildMarkdown
+// passes elements (not innerHTML strings), matching the real Turndown API.
 const fakeTurndown = {
-  turndown: (html) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+  turndown: (node) => node.innerHTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
 };
 
 const buildFixtureMarkdown = () => {
@@ -269,11 +270,11 @@ test('buildMarkdown — a section that throws does not lose the other sections',
   const root = findRoot(doc);
   let call = 0;
   const flakyTurndown = {
-    turndown: (html) => {
+    turndown: (node) => {
       call += 1;
       // Fail on the job description, the second conversion after the header.
       if (call === 2) throw new Error('turndown exploded');
-      return fakeTurndown.turndown(html);
+      return fakeTurndown.turndown(node);
     },
   };
   const md = buildMarkdown(doc, root, flakyTurndown, 'https://www.linkedin.com/jobs/view/1000000001/');
@@ -288,11 +289,11 @@ test('buildMarkdown — a header that throws does not lose the sections', () => 
   const root = findRoot(doc);
   let call = 0;
   const flakyTurndown = {
-    turndown: (html) => {
+    turndown: (node) => {
       call += 1;
       // Fail on the header, the first conversion.
       if (call === 1) throw new Error('turndown exploded');
-      return fakeTurndown.turndown(html);
+      return fakeTurndown.turndown(node);
     },
   };
   const md = buildMarkdown(doc, root, flakyTurndown, 'https://www.linkedin.com/jobs/view/1000000001/');

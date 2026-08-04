@@ -100,10 +100,15 @@ function buildMarkdown(doc, root, td, url) {
 
   if (heading) parts.push(`# ${heading}`);
 
+  // Pass elements, not innerHTML strings: given a string, Turndown reparses it
+  // via `new DOMParser()` and locates its wrapper by id. LinkedIn patches
+  // DOMParser.prototype.parseFromString as an XSS sanitizer that strips
+  // unrecognized tags (including Turndown's wrapper), which breaks that path.
+  // Passing the element makes Turndown clone it directly, skipping the reparse.
   const header = findHeaderBlock(root);
   if (header) {
     try {
-      parts.push(td.turndown(header.innerHTML));
+      parts.push(td.turndown(header));
     } catch (e) {
       derror('header block failed to convert', e);
     }
@@ -119,7 +124,7 @@ function buildMarkdown(doc, root, td, url) {
   // The failure is reported, never swallowed.
   sections.forEach((el) => {
     try {
-      parts.push(td.turndown(el.innerHTML));
+      parts.push(td.turndown(el));
     } catch (e) {
       derror(`section ${el.getAttribute('componentkey')} failed to convert`, e);
     }
