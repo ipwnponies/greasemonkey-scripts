@@ -46,6 +46,7 @@ Scripts that remove paste/copy restrictions on sites that block them for no good
 | `github.approve-shortcut.user.js` | github.com | Approve PR with keyboard |
 | `github.edit-shortcut.user.js` | github.com | Edit issue/comment with keyboard |
 | `google-photos.keybinding-options.user.js` | photos.google.com | Keyboard navigation for photo options |
+| `linkedin.copy-to-markdown.user.js` | linkedin.com | Copy a job posting to the clipboard as markdown (Alt+Shift+C) |
 | `trakt.search-rotten-tomatoes.user.js` | trakt.tv | Search current title on Rotten Tomatoes |
 | `youtube.show-transcript-hotkey.user.js` | youtube.com | Open transcript panel |
 
