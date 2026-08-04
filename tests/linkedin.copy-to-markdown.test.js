@@ -7,7 +7,7 @@ const { JSDOM } = require('jsdom');
 
 const exportedFunctions = [
   'parseDocumentTitle', 'findRoot', 'findHeaderBlock', 'collectSections', 'expandTruncated', 'extractJobId',
-  'buildMarkdown',
+  'buildMarkdown', 'waitForJobContent',
 ].join(', ');
 
 const loadUserscript = (overrides = {}) => {
@@ -42,6 +42,7 @@ const loadFixtureDocument = () => new JSDOM(fs.readFileSync(fixturePath, 'utf8')
 
 const {
   parseDocumentTitle, findRoot, findHeaderBlock, collectSections, expandTruncated, extractJobId, buildMarkdown,
+  waitForJobContent,
 } = loadUserscript();
 
 // Values returned from vm.runInNewContext live in a different realm than this
@@ -186,6 +187,32 @@ test('expandTruncated — ignores buttons that merely contain the word more', ()
 test('expandTruncated — returns 0 when there is nothing to expand', () => {
   const root = new JSDOM('<main><p>text</p></main>').window.document.querySelector('main');
   assert.equal(expandTruncated(root), 0);
+});
+
+test('waitForJobContent — resolves true immediately when content is already present', async () => {
+  const root = findRoot(loadFixtureDocument());
+  const result = await waitForJobContent(root, { timeout: 1000, interval: 10 });
+  assert.equal(result, true);
+});
+
+test('waitForJobContent — resolves true once content appears asynchronously', async () => {
+  const doc = new JSDOM('<main></main>').window.document;
+  const root = doc.querySelector('main');
+  setTimeout(() => {
+    const el = doc.createElement('div');
+    el.setAttribute('componentkey', 'JobDetails_AboutTheJob_1');
+    el.textContent = 'About the job';
+    root.appendChild(el);
+  }, 30);
+  const result = await waitForJobContent(root, { timeout: 1000, interval: 10 });
+  assert.equal(result, true);
+});
+
+test('waitForJobContent — resolves false when content never appears within the timeout', async () => {
+  const doc = new JSDOM('<main></main>').window.document;
+  const root = doc.querySelector('main');
+  const result = await waitForJobContent(root, { timeout: 50, interval: 10 });
+  assert.equal(result, false);
 });
 
 test('extractJobId — reads the id from the componentkey suffix', () => {
