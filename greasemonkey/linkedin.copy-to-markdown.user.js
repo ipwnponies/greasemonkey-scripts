@@ -2,9 +2,10 @@
 // @name         Copy to Markdown - linkedin.com
 // @namespace    ipwnponies
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJMYXllcl8xIiBkYXRhLW5hbWU9IkxheWVyIDEiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8c3R5bGU+CiAgICAuZmF2aWNvbi1iYWNrZ3JvdW5kIHsgZmlsbDogIzBhNjZjMjsgfQogICAgLmZhdmljb24tdGV4dCB7IGZpbGw6ICNmZmY7IH0KICA8L3N0eWxlPgogIDxwYXRoIGNsYXNzPSJmYXZpY29uLWJhY2tncm91bmQiIGQ9Ik01NS45Miw0SDguMDhBNC4wOCw0LjA4LDAsMCwwLDQsOC4wOFY1NS45MkE0LjA4LDQuMDgsMCwwLDAsOC4wOCw2MEg1NS45MkE0LjA4LDQuMDgsMCwwLDAsNjAsNTUuOTJWOC4wOEE0LjA4LDQuMDgsMCwwLDAsNTUuOTIsNFpNMjAsNTJIMTJWMjVoOFpNMTYsMjAuN2E0LjcsNC43LDAsMCwxLDAtOS40aDBhNC43LDQuNywwLDAsMSwwLDkuNFpNNTIsNTJINDRWMzcuODFjMC00LjMxLTIuNzMtNi4xMS01LTYuMTFhNS44Miw1LjgyLDAsMCwwLTYsNi4yMVY1MkgyNVYyNWg3LjUzdjMuNzloLjExYy44LTEuNjQsNC40NC00LjM3LDkuMTMtNC4zN1M1MiwyNy41OSw1MiwzNS43NloiLz4KICA8cGF0aCBjbGFzcz0iZmF2aWNvbi10ZXh0IiBkPSJNNTIsMzUuNzZWNTJINDRWMzcuODFjMC00LjMxLTIuNzMtNi4xMS01LTYuMTFhNS44Miw1LjgyLDAsMCwwLTYsNi4yMVY1MkgyNVYyNWg3LjUzdjMuNzloLjExYy44LTEuNjQsNC40NC00LjM3LDkuMTMtNC4zN1M1MiwyNy41OSw1MiwzNS43NlpNMTYsMTEuM0E0LjcsNC43LDAsMSwwLDIwLjcsMTYsNC42OSw0LjY5LDAsMCwwLDE2LDExLjNaTTEyLDUyaDhWMjVIMTJaIiAvPgo8L3N2Zz4=
-// @version      1.0.0
+// @version      1.1.2
 // @description  Add hotkey/menu command to copy a LinkedIn job posting to the clipboard as markdown
 // @match        https://www.linkedin.com/jobs/view/*
+// @match        https://www.linkedin.com/comm/jobs/view/*
 // @require      https://cdn.jsdelivr.net/npm/turndown@7.2.4/dist/turndown.js
 // @require      https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @grant        GM.registerMenuCommand
@@ -64,7 +65,6 @@ const SECTION_KEYS = [
   ABOUT_THE_JOB_KEY,
   'JobDetails_AboutTheCompany_',
   'JobDetailsPeopleWhoCanHelpSlot_',
-  'JobDetailsSimilarJobsSlot_',
 ];
 
 function collectSections(root) {
@@ -100,10 +100,15 @@ function buildMarkdown(doc, root, td, url) {
 
   if (heading) parts.push(`# ${heading}`);
 
+  // Pass elements, not innerHTML strings: given a string, Turndown reparses it
+  // via `new DOMParser()` and locates its wrapper by id. LinkedIn patches
+  // DOMParser.prototype.parseFromString as an XSS sanitizer that strips
+  // unrecognized tags (including Turndown's wrapper), which breaks that path.
+  // Passing the element makes Turndown clone it directly, skipping the reparse.
   const header = findHeaderBlock(root);
   if (header) {
     try {
-      parts.push(td.turndown(header.innerHTML));
+      parts.push(td.turndown(header));
     } catch (e) {
       derror('header block failed to convert', e);
     }
@@ -119,7 +124,7 @@ function buildMarkdown(doc, root, td, url) {
   // The failure is reported, never swallowed.
   sections.forEach((el) => {
     try {
-      parts.push(td.turndown(el.innerHTML));
+      parts.push(td.turndown(el));
     } catch (e) {
       derror(`section ${el.getAttribute('componentkey')} failed to convert`, e);
     }
@@ -148,6 +153,27 @@ function buildTurndownService() {
   td.remove(['script', 'style', 'svg', 'button', 'iframe', 'noscript', 'input', 'label']);
 
   return td;
+}
+
+// LinkedIn renders the page shell first and fills in the header/content slots
+// from a follow-up fetch, so reading the DOM immediately can catch it before
+// that data lands. Poll briefly rather than assuming it's there on first read.
+function waitForJobContent(root, { timeout = 5000, interval = 150 } = {}) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      if (findHeaderBlock(root) || collectSections(root).length) {
+        resolve(true);
+        return;
+      }
+      if (Date.now() - start >= timeout) {
+        resolve(false);
+        return;
+      }
+      setTimeout(check, interval);
+    };
+    check();
+  });
 }
 
 function showToast(msg) {
@@ -186,6 +212,9 @@ async function copyMarkdownToClipboard() {
       showToast('No job content found (see console)');
       return;
     }
+
+    const ready = await waitForJobContent(root);
+    if (!ready) dwarn('Job content did not finish loading in time - copying whatever is present');
 
     const expanded = expandTruncated(root);
     dlog('expanded truncation toggles:', expanded);

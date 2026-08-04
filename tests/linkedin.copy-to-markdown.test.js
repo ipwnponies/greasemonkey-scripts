@@ -7,7 +7,7 @@ const { JSDOM } = require('jsdom');
 
 const exportedFunctions = [
   'parseDocumentTitle', 'findRoot', 'findHeaderBlock', 'collectSections', 'expandTruncated', 'extractJobId',
-  'buildMarkdown',
+  'buildMarkdown', 'waitForJobContent',
 ].join(', ');
 
 const loadUserscript = (overrides = {}) => {
@@ -42,6 +42,7 @@ const loadFixtureDocument = () => new JSDOM(fs.readFileSync(fixturePath, 'utf8')
 
 const {
   parseDocumentTitle, findRoot, findHeaderBlock, collectSections, expandTruncated, extractJobId, buildMarkdown,
+  waitForJobContent,
 } = loadUserscript();
 
 // Values returned from vm.runInNewContext live in a different realm than this
@@ -121,7 +122,6 @@ test('collectSections — returns non-empty content slots in document order', ()
   assert.deepEqual(keys, [
     'JobDetails_AboutTheJob_1000000001',
     'JobDetails_AboutTheCompany_1000000001',
-    'JobDetailsSimilarJobsSlot_1000000001',
   ]);
 });
 
@@ -143,6 +143,7 @@ test('collectSections — excludes premium and furniture slots', () => {
     'JobDetails_ResumeReview_',
     'JobDetails_ManageJobBanner_',
     'JobDetails_JobAlertToggle_',
+    'JobDetailsSimilarJobsSlot_',
   ];
   excluded.forEach((prefix) => {
     assert.ok(!keys.some((k) => k.startsWith(prefix)), `${prefix} should not be collected`);
@@ -188,6 +189,32 @@ test('expandTruncated — returns 0 when there is nothing to expand', () => {
   assert.equal(expandTruncated(root), 0);
 });
 
+test('waitForJobContent — resolves true immediately when content is already present', async () => {
+  const root = findRoot(loadFixtureDocument());
+  const result = await waitForJobContent(root, { timeout: 1000, interval: 10 });
+  assert.equal(result, true);
+});
+
+test('waitForJobContent — resolves true once content appears asynchronously', async () => {
+  const doc = new JSDOM('<main></main>').window.document;
+  const root = doc.querySelector('main');
+  setTimeout(() => {
+    const el = doc.createElement('div');
+    el.setAttribute('componentkey', 'JobDetails_AboutTheJob_1');
+    el.textContent = 'About the job';
+    root.appendChild(el);
+  }, 30);
+  const result = await waitForJobContent(root, { timeout: 1000, interval: 10 });
+  assert.equal(result, true);
+});
+
+test('waitForJobContent — resolves false when content never appears within the timeout', async () => {
+  const doc = new JSDOM('<main></main>').window.document;
+  const root = doc.querySelector('main');
+  const result = await waitForJobContent(root, { timeout: 50, interval: 10 });
+  assert.equal(result, false);
+});
+
 test('extractJobId — reads the id from the componentkey suffix', () => {
   const root = findRoot(loadFixtureDocument());
   assert.equal(extractJobId(root, 'https://www.linkedin.com/jobs/view/1000000001/'), '1000000001');
@@ -210,9 +237,10 @@ test('extractJobId — returns an empty string when the id is unknowable', () =>
 });
 
 // Turndown loads from a CDN at runtime and is third-party; the fake keeps these
-// tests about which content is selected, not about markdown fidelity.
+// tests about which content is selected, not about markdown fidelity. buildMarkdown
+// passes elements (not innerHTML strings), matching the real Turndown API.
 const fakeTurndown = {
-  turndown: (html) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+  turndown: (node) => node.innerHTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
 };
 
 const buildFixtureMarkdown = () => {
@@ -239,16 +267,16 @@ test('buildMarkdown — includes every allow-listed section', () => {
   assert.match(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
   assert.match(md, /Software Development . 501-1000 employees/);
-  assert.match(md, /More jobs/);
-  assert.match(md, /\$210K\/yr - \$290K\/yr/);
 });
 
-test('buildMarkdown — excludes premium upsell content', () => {
+test('buildMarkdown — excludes premium upsell and similar-jobs content', () => {
   const md = buildFixtureMarkdown();
   assert.doesNotMatch(md, /Reactivate Premium/);
   assert.doesNotMatch(md, /Use AI to assess how you fit/);
   assert.doesNotMatch(md, /Job search faster with Premium/);
   assert.doesNotMatch(md, /Set alert for similar jobs/);
+  assert.doesNotMatch(md, /More jobs/);
+  assert.doesNotMatch(md, /\$210K\/yr - \$290K\/yr/);
 });
 
 test('buildMarkdown — ends with a source footer carrying the job id', () => {
@@ -269,17 +297,16 @@ test('buildMarkdown — a section that throws does not lose the other sections',
   const root = findRoot(doc);
   let call = 0;
   const flakyTurndown = {
-    turndown: (html) => {
+    turndown: (node) => {
       call += 1;
       // Fail on the job description, the second conversion after the header.
       if (call === 2) throw new Error('turndown exploded');
-      return fakeTurndown.turndown(html);
+      return fakeTurndown.turndown(node);
     },
   };
   const md = buildMarkdown(doc, root, flakyTurndown, 'https://www.linkedin.com/jobs/view/1000000001/');
   assert.doesNotMatch(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
-  assert.match(md, /More jobs/);
   assert.ok(md.endsWith('_Source: https://www.linkedin.com/jobs/view/1000000001/ — job ID 1000000001_'));
 });
 
@@ -288,17 +315,16 @@ test('buildMarkdown — a header that throws does not lose the sections', () => 
   const root = findRoot(doc);
   let call = 0;
   const flakyTurndown = {
-    turndown: (html) => {
+    turndown: (node) => {
       call += 1;
       // Fail on the header, the first conversion.
       if (call === 1) throw new Error('turndown exploded');
-      return fakeTurndown.turndown(html);
+      return fakeTurndown.turndown(node);
     },
   };
   const md = buildMarkdown(doc, root, flakyTurndown, 'https://www.linkedin.com/jobs/view/1000000001/');
   assert.doesNotMatch(md, /Reposted 2 days ago/);
   assert.match(md, /Nomad scheduler API/);
   assert.match(md, /About the company/);
-  assert.match(md, /More jobs/);
   assert.ok(md.endsWith('_Source: https://www.linkedin.com/jobs/view/1000000001/ — job ID 1000000001_'));
 });
