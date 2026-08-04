@@ -155,6 +155,27 @@ function buildTurndownService() {
   return td;
 }
 
+// LinkedIn renders the page shell first and fills in the header/content slots
+// from a follow-up fetch, so reading the DOM immediately can catch it before
+// that data lands. Poll briefly rather than assuming it's there on first read.
+function waitForJobContent(root, { timeout = 5000, interval = 150 } = {}) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      if (findHeaderBlock(root) || collectSections(root).length) {
+        resolve(true);
+        return;
+      }
+      if (Date.now() - start >= timeout) {
+        resolve(false);
+        return;
+      }
+      setTimeout(check, interval);
+    };
+    check();
+  });
+}
+
 function showToast(msg) {
   let toast = document.getElementById('li2md-toast');
   if (!toast) {
@@ -191,6 +212,9 @@ async function copyMarkdownToClipboard() {
       showToast('No job content found (see console)');
       return;
     }
+
+    const ready = await waitForJobContent(root);
+    if (!ready) dwarn('Job content did not finish loading in time - copying whatever is present');
 
     const expanded = expandTruncated(root);
     dlog('expanded truncation toggles:', expanded);
