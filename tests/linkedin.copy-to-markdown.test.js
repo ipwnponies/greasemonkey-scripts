@@ -150,6 +150,37 @@ test('collectSections — excludes premium and furniture slots', () => {
   });
 });
 
+test('collectSections — truncates a section at its first <hr>, dropping trailing feed chrome', () => {
+  const doc = new JSDOM(`
+    <main>
+      <div componentkey="JobDetails_AboutTheCompany_1">
+        <p>About the company</p>
+        <p>Real company description</p>
+        <hr>
+        <p>Trending employee content</p>
+        <p>Some unrelated feed post</p>
+      </div>
+    </main>
+  `).window.document;
+  const root = doc.querySelector('main');
+  const [section] = collectSections(root);
+  assert.match(section.textContent, /Real company description/);
+  assert.doesNotMatch(section.textContent, /Trending employee content/);
+  assert.doesNotMatch(section.textContent, /Some unrelated feed post/);
+  assert.equal(section.querySelector('hr'), null);
+});
+
+test('collectSections — leaves a section untouched when it has no <hr>', () => {
+  const doc = new JSDOM(`
+    <main>
+      <div componentkey="JobDetails_AboutTheCompany_1"><p>No hr here</p></div>
+    </main>
+  `).window.document;
+  const root = doc.querySelector('main');
+  const [section] = collectSections(root);
+  assert.match(section.textContent, /No hr here/);
+});
+
 test('collectSections — returns an empty array when no slots are present', () => {
   const root = new JSDOM('<main><div>nothing</div></main>').window.document.querySelector('main');
   assert.deepEqual([...collectSections(root)], []);
