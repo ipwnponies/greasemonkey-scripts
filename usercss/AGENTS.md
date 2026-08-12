@@ -33,6 +33,8 @@ Every file starts with a metadata block, then one or more `@-moz-document` rules
 | `@description` | Short summary |
 | `@var` | Declares a user-configurable variable (see below) |
 
+Bump `@version` (semver) whenever a style's rules change — Stylus tracks updates by that field, so a shipped change without a bump won't be picked up by installed users.
+
 ### `@var` Declarations
 
 Variables let users tune values through the extension UI without editing raw CSS. The extension injects them as CSS custom properties (e.g. `--font-size`) that you reference with `var()`.
