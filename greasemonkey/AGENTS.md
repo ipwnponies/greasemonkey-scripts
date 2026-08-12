@@ -33,6 +33,8 @@ Every script opens with a metadata block inside a `// ==UserScript== ... // ==/U
 
 `@namespace` + `@name` = unique identity. Do not use `@author`. Multiple `@match` lines allowed — use the narrowest pattern that covers target pages.
 
+Bump `@version` (semver) whenever a script's behavior changes — Violentmonkey tracks updates by that field, so a shipped change without a bump won't be picked up by installed users.
+
 Pin `@require` to a major version (`@2`, `@1`) rather than `latest`.
 
 ## GM APIs
