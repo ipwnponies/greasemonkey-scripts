@@ -2,7 +2,7 @@
 // @name         Copy to Markdown - linkedin.com
 // @namespace    ipwnponies
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJMYXllcl8xIiBkYXRhLW5hbWU9IkxheWVyIDEiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8c3R5bGU+CiAgICAuZmF2aWNvbi1iYWNrZ3JvdW5kIHsgZmlsbDogIzBhNjZjMjsgfQogICAgLmZhdmljb24tdGV4dCB7IGZpbGw6ICNmZmY7IH0KICA8L3N0eWxlPgogIDxwYXRoIGNsYXNzPSJmYXZpY29uLWJhY2tncm91bmQiIGQ9Ik01NS45Miw0SDguMDhBNC4wOCw0LjA4LDAsMCwwLDQsOC4wOFY1NS45MkE0LjA4LDQuMDgsMCwwLDAsOC4wOCw2MEg1NS45MkE0LjA4LDQuMDgsMCwwLDAsNjAsNTUuOTJWOC4wOEE0LjA4LDQuMDgsMCwwLDAsNTUuOTIsNFpNMjAsNTJIMTJWMjVoOFpNMTYsMjAuN2E0LjcsNC43LDAsMCwxLDAtOS40aDBhNC43LDQuNywwLDAsMSwwLDkuNFpNNTIsNTJINDRWMzcuODFjMC00LjMxLTIuNzMtNi4xMS01LTYuMTFhNS44Miw1LjgyLDAsMCwwLTYsNi4yMVY1MkgyNVYyNWg3LjUzdjMuNzloLjExYy44LTEuNjQsNC40NC00LjM3LDkuMTMtNC4zN1M1MiwyNy41OSw1MiwzNS43NloiLz4KICA8cGF0aCBjbGFzcz0iZmF2aWNvbi10ZXh0IiBkPSJNNTIsMzUuNzZWNTJINDRWMzcuODFjMC00LjMxLTIuNzMtNi4xMS01LTYuMTFhNS44Miw1LjgyLDAsMCwwLTYsNi4yMVY1MkgyNVYyNWg3LjUzdjMuNzloLjExYy44LTEuNjQsNC40NC00LjM3LDkuMTMtNC4zN1M1MiwyNy41OSw1MiwzNS43NlpNMTYsMTEuM0E0LjcsNC43LDAsMSwwLDIwLjcsMTYsNC42OSw0LjY5LDAsMCwwLDE2LDExLjNaTTEyLDUyaDhWMjVIMTJaIiAvPgo8L3N2Zz4=
-// @version      1.1.3
+// @version      1.1.4
 // @description  Add hotkey/menu command to copy a LinkedIn job posting to the clipboard as markdown
 // @match        https://www.linkedin.com/jobs/view/*
 // @match        https://www.linkedin.com/comm/jobs/view/*
@@ -92,8 +92,44 @@ function collectSections(root) {
 // its text is the only stable hook. Anchored to avoid matching "More jobs".
 const TRUNCATION_TOGGLE = /^(…\s*more|see more)$/i;
 
+// Same scope buildMarkdown ends up keeping (header + allow-listed sections), but
+// untrimmed - callers here need real nodes to click, not the clones trimAtFirstHr
+// hands back. Sections outside this allow-list (premium upsell, etc.) and content
+// past a section's first <hr> (e.g. the "Trending employee content" carousel inside
+// AboutTheCompany) must never be clicked: those buttons often sit inside an <a>
+// wrapping an unrelated feed post, and .click() bubbles into that anchor, causing
+// the page to navigate away.
+function truncationScope(root) {
+  const header = findHeaderBlock(root);
+  const sections = SECTION_KEYS.map((key) => root.querySelector(`[componentkey^="${key}"]`)).filter(Boolean);
+  return [header, ...sections].filter(Boolean);
+}
+
+// Collects <button> descendants in document order, stopping at (and excluding)
+// the element's first <hr> - mirrors trimAtFirstHr's boundary without needing to
+// clone/mutate anything, since callers here need the real nodes to click.
+function buttonsBeforeFirstHr(el) {
+  const buttons = [];
+  let hitHr = false;
+  const walk = (node) => {
+    [...node.children].some((child) => {
+      if (child.tagName === 'HR') {
+        hitHr = true;
+        return true;
+      }
+      if (child.tagName === 'BUTTON') buttons.push(child);
+      walk(child);
+      return hitHr;
+    });
+  };
+  walk(el);
+  return buttons;
+}
+
 function expandTruncated(root) {
-  const toggles = [...root.querySelectorAll('button')].filter((b) => TRUNCATION_TOGGLE.test(b.textContent.trim()));
+  const toggles = truncationScope(root)
+    .flatMap(buttonsBeforeFirstHr)
+    .filter((b) => TRUNCATION_TOGGLE.test(b.textContent.trim()));
   toggles.forEach((b) => b.click());
   return toggles.length;
 }
