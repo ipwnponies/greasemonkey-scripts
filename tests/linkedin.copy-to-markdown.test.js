@@ -186,24 +186,27 @@ test('collectSections — returns an empty array when no slots are present', () 
   assert.deepEqual([...collectSections(root)], []);
 });
 
-test('expandTruncated — clicks every truncation toggle in the fixture', () => {
+test('expandTruncated — clicks only the toggle inside an allow-listed section', () => {
+  // The fixture also has a "… more" button under JobDetails_PremiumCompanyInsights_,
+  // which is not in SECTION_KEYS - it must be left alone.
   const root = findRoot(loadFixtureDocument());
   const clicked = [];
   root.querySelectorAll('button').forEach((b) => {
     b.addEventListener('click', () => clicked.push(b.textContent.trim()));
   });
-  assert.equal(expandTruncated(root), 2);
-  assert.equal(clicked.length, 2);
-  clicked.forEach((label) => assert.match(label, /more/i));
+  assert.equal(expandTruncated(root), 1);
+  assert.deepEqual(clicked, ['… more']);
 });
 
 test('expandTruncated — ignores buttons that merely contain the word more', () => {
   const doc = new JSDOM(`
     <main>
-      <button>More jobs</button>
-      <button>Show more results</button>
-      <button>… more</button>
-      <button>See more</button>
+      <div componentkey="JobDetails_AboutTheJob_1">
+        <button>More jobs</button>
+        <button>Show more results</button>
+        <button>… more</button>
+        <button>See more</button>
+      </div>
     </main>
   `).window.document;
   const root = doc.querySelector('main');
@@ -218,6 +221,36 @@ test('expandTruncated — ignores buttons that merely contain the word more', ()
 test('expandTruncated — returns 0 when there is nothing to expand', () => {
   const root = new JSDOM('<main><p>text</p></main>').window.document.querySelector('main');
   assert.equal(expandTruncated(root), 0);
+});
+
+test('expandTruncated — never clicks a toggle nested inside an anchor past the <hr>', () => {
+  // Mirrors LinkedIn's real "Trending employee content" carousel: an allow-listed
+  // section (AboutTheCompany) contains real content, then an <hr>, then unrelated
+  // feed posts whose "… more" toggle sits inside an <a> wrapping the whole post.
+  // Clicking that button would bubble the click into the anchor and navigate away.
+  const doc = new JSDOM(`
+    <main>
+      <div componentkey="JobDetails_AboutTheCompany_1">
+        <p>Real company blurb <button>… more</button></p>
+        <hr>
+        <a href="https://www.linkedin.com/feed/update/urn:li:activity:123/">
+          <p>Unrelated feed post <button>… more</button></p>
+        </a>
+      </div>
+    </main>
+  `).window.document;
+  const root = doc.querySelector('main');
+  const clicked = [];
+  let navigated = false;
+  doc.querySelector('a').addEventListener('click', () => {
+    navigated = true;
+  });
+  root.querySelectorAll('button').forEach((b) => {
+    b.addEventListener('click', () => clicked.push(b.closest('a') ? 'in-anchor' : 'real'));
+  });
+  assert.equal(expandTruncated(root), 1);
+  assert.deepEqual(clicked, ['real']);
+  assert.equal(navigated, false);
 });
 
 test('waitForJobContent — resolves true immediately when content is already present', async () => {
