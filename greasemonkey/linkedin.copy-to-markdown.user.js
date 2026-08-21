@@ -282,7 +282,7 @@ async function copyMarkdownToClipboard() {
     // GM.setClipboard is extension-privileged and needs no page-level user
     // activation, unlike navigator.clipboard - required for the menu command path,
     // which Firefox does not treat as a user gesture on the page.
-    GM.setClipboard(md + '\n');
+    GM.setClipboard(`${md}\n`);
     dlog('copied markdown length:', md.length);
     showToast(`Copied (${md.length} chars)`);
   } catch (e) {
