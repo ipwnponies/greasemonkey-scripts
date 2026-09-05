@@ -4,6 +4,8 @@ Userscripts are JavaScript files installed into a browser via Violentmonkey (or 
 
 **To create a new script, use the `create-userscript` skill.** This guide covers working with existing scripts.
 
+Flat directory — one file per site, no shared modules or build step between scripts. See `../AGENTS.md` for repo-wide commands.
+
 ## File Structure
 
 Every script opens with a metadata block inside a `// ==UserScript== ... // ==/UserScript==` comment, followed by plain JavaScript.
@@ -148,6 +150,11 @@ Angular apps wrap `addEventListener` via zone.js. Bypass when it breaks event ha
 ```js
 input.addEventListener.__zone_symbol__OriginalDelegate.call(input, 'paste', handler, false);
 ```
+
+## Testing
+
+Tests live in `../tests/<script-name>.test.js` (Node's built-in `node:test` + jsdom).
+Fixtures go in `../tests/fixtures/`. Run with `npm test` from repo root.
 
 ## Naming Convention
 

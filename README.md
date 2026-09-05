@@ -43,10 +43,12 @@ Scripts that remove paste/copy restrictions on sites that block them for no good
 |--------|------|----------|
 | `amazon.camel-shortcut.user.js` | amazon.com | Open current product on CamelCamelCamel |
 | `arstechnica.comment-shortcut.user.js` | arstechnica.com | Jump to comments |
+| `claude.claude-desktop-shortcuts.user.js` | claude.ai | Mic hotkey and command palette |
 | `github.approve-shortcut.user.js` | github.com | Approve PR with keyboard |
 | `github.edit-shortcut.user.js` | github.com | Edit issue/comment with keyboard |
 | `google-photos.keybinding-options.user.js` | photos.google.com | Keyboard navigation for photo options |
 | `linkedin.copy-to-markdown.user.js` | linkedin.com | Copy a job posting to the clipboard as markdown (Alt+Shift+C) |
+| `neetcode.copy-to-markdown.user.js` | neetcode.io | Copy problem, solutions, and own code to clipboard as markdown |
 | `trakt.search-rotten-tomatoes.user.js` | trakt.tv | Search current title on Rotten Tomatoes |
 | `youtube.show-transcript-hotkey.user.js` | youtube.com | Open transcript panel |
 
@@ -70,12 +72,10 @@ Scripts that remove paste/copy restrictions on sites that block them for no good
 |--------|------|-------------|
 | `cenlar.always-agree-checkbox.user.js` | cenlar.com | Auto-check agreement checkboxes |
 | `duckduckgo.just-get-to-the-page-already.user.js` | duckduckgo.com | Skip interstitial redirects |
-| `fatsecret.redirect-absolute-url.user.js` | fatsecret.com | Redirect diary to absolute date URL |
-| `fatsecret.searchbar-fixer.user.js` | fatsecret.com | Fix add-item search bar focus behaviour |
+| `neetcode.practice-list-same-tab.user.js` | neetcode.io | Fix the "Open List" button to navigate same-tab |
 | `fidelity.autocomplete-off.user.js` | digital.fidelity.com | Disable autocomplete on login fields |
 | `gmail.open-tadpole-images.user.js` | mail.google.com | Open all Tadpoles images in new tabs (Ctrl+K) |
 | `leetcode-filtering.user.js` | leetcode.com | Add difficulty/status filters to tag pages |
-| `mealpal.user.js` | secure.mealpal.com | Add Yelp review links to meal listings |
 | `tadpoles.redirect-to-image-src.user.js` | tadpoles.com | Redirect to direct image URL |
 
 ## UserCSS Stylesheets
@@ -85,22 +85,20 @@ Custom styles applied via Stylus.
 | File | Site |
 |------|------|
 | `budgetbytes.com.user.css` | budgetbytes.com |
-| `buildkite.com.user.css` | buildkite.com |
 | `chatgpt.com.user.css` | chatgpt.com |
 | `disneyplus.com.user.css` | disneyplus.com |
 | `fandom.com.user.css` | fandom.com |
 | `gamefaqs.gamespot.com.user.css` | gamefaqs.gamespot.com |
 | `gmail.com.user.css` | mail.google.com |
-| `guardiananytime.com.user.css` | guardiananytime.com |
 | `healthychildren.org.user.css` | healthychildren.org |
 | `howlongtobeat.com.user.css` | howlongtobeat.com |
 | `joyofbaking.com.user.css` | joyofbaking.com |
 | `keyofw.com.user.css` | keyofw.com |
+| `neetcode.io.user.css` | neetcode.io |
 | `notebooklm.google.com.user.css` | notebooklm.google.com |
 | `reddit.com.user.css` | reddit.com |
 | `seriouseats.com.user.css` | seriouseats.com |
 | `strongerbyscience.com.user.css` | strongerbyscience.com |
-| `sumologic.com.user.css` | sumologic.com |
 | `tadpoles.com.user.css` | tadpoles.com |
 | `thepancakeprincess.com.user.css` | thepancakeprincess.com |
 | `thespruceeats.com.user.css` | thespruceeats.com |
