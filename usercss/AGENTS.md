@@ -2,7 +2,7 @@
 
 UserCSS files are custom stylesheets installed into a browser via a style manager extension (e.g. Stylus). Each file targets one or more specific sites and overrides their default presentation.
 
-Flat directory — one file per site, no shared modules or build step between styles. See `../AGENTS.md` for repo-wide commands.
+See `../AGENTS.md` for repo-wide commands.
 
 ## File Structure
 

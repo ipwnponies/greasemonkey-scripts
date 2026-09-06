@@ -4,7 +4,7 @@ Userscripts are JavaScript files installed into a browser via Violentmonkey (or 
 
 **To create a new script, use the `create-userscript` skill.** This guide covers working with existing scripts.
 
-Flat directory — one file per site, no shared modules or build step between scripts. See `../AGENTS.md` for repo-wide commands.
+See `../AGENTS.md` for repo-wide commands.
 
 ## File Structure
 
@@ -153,8 +153,11 @@ input.addEventListener.__zone_symbol__OriginalDelegate.call(input, 'paste', hand
 
 ## Testing
 
-Tests live in `../tests/<script-name>.test.js` (Node's built-in `node:test` + jsdom).
-Fixtures go in `../tests/fixtures/`. Run with `npm test` from repo root.
+Tests live in `../tests/<script-name>.test.js` (Node's built-in `node:test`). Each test loads the
+userscript source into a `node:vm` sandbox and stubs the DOM APIs it touches — most hand-roll plain
+mock objects, one (`linkedin.copy-to-markdown`) uses jsdom with a fixture from `../tests/fixtures/`.
+Run with `npm test` from repo root. Most scripts have no test yet — add one when changing
+non-trivial DOM logic.
 
 ## Naming Convention
 
