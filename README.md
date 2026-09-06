@@ -72,10 +72,10 @@ Scripts that remove paste/copy restrictions on sites that block them for no good
 |--------|------|-------------|
 | `cenlar.always-agree-checkbox.user.js` | cenlar.com | Auto-check agreement checkboxes |
 | `duckduckgo.just-get-to-the-page-already.user.js` | duckduckgo.com | Skip interstitial redirects |
-| `neetcode.practice-list-same-tab.user.js` | neetcode.io | Fix the "Open List" button to navigate same-tab |
 | `fidelity.autocomplete-off.user.js` | digital.fidelity.com | Disable autocomplete on login fields |
 | `gmail.open-tadpole-images.user.js` | mail.google.com | Open all Tadpoles images in new tabs (Ctrl+K) |
 | `leetcode-filtering.user.js` | leetcode.com | Add difficulty/status filters to tag pages |
+| `neetcode.practice-list-same-tab.user.js` | neetcode.io | Fix the "Open List" button to navigate same-tab; adds a "Go to practice list" menu command |
 | `tadpoles.redirect-to-image-src.user.js` | tadpoles.com | Redirect to direct image URL |
 
 ## UserCSS Stylesheets
@@ -109,10 +109,4 @@ Custom styles applied via Stylus.
 
 ## Development
 
-```bash
-npm install        # install dev dependencies
-npm test           # run tests (Node.js native test runner)
-npm run lint       # run ESLint on all scripts
-```
-
-Tests use the Node.js built-in `node:test` module (Node 20+). ESLint is configured with the Airbnb base style guide.
+See [`AGENTS.md`](AGENTS.md) for setup commands, linting scope, and testing details.
