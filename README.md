@@ -109,4 +109,10 @@ Custom styles applied via Stylus.
 
 ## Development
 
-See [`AGENTS.md`](AGENTS.md) for setup commands, linting scope, and testing details.
+```bash
+npm install             # install dev dependencies
+npm test                # run tests/*.test.js (Node's built-in test runner)
+npm run lint            # eslint greasemonkey/ — usercss/ is not linted
+```
+
+See [`AGENTS.md`](AGENTS.md) for agent-specific conventions and gotchas.
